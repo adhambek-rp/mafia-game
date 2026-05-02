@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Mafiya O'yini</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080810; --surface: #10101a; --surface2: #16162a;
+    --border: rgba(255,255,255,0.07); --text: #e0e0f0; --muted: #6b7280;
+    --accent: #c9a84c; --red: #ef4444; --green: #22c55e; --blue: #3b82f6; --purple: #8b5cf6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Rubik',sans-serif; background:var(--bg); color:var(--text); display:flex; min-height:100vh; }
+  
+  /* Sidebar */
+  .sidebar { width:240px; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; left:0; top:0; bottom:0; }
+  .sidebar-logo { padding:24px 20px; border-bottom:1px solid var(--border); }
+  .sidebar-logo h1 { font-family:'Cinzel',serif; color:var(--accent); font-size:1.1rem; }
+  .sidebar-logo p { color:var(--muted); font-size:0.75rem; margin-top:4px; }
+  .nav-menu { flex:1; padding:16px 0; }
+  .nav-item { display:flex; align-items:center; gap:12px; padding:12px 20px; cursor:pointer; transition:all 0.2s; color:var(--muted); font-size:0.9rem; }
+  .nav-item:hover,.nav-item.active { background:rgba(201,168,76,0.08); color:var(--accent); }
+  .nav-item.active { border-right:3px solid var(--accent); }
+  .sidebar-footer { padding:16px 20px; border-top:1px solid var(--border); }
+  .logout-btn { width:100%; padding:10px; background:rgba(239,68,68,0.15); color:var(--red); border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-family:'Rubik'; }
+
+  /* Main */
+  .main { margin-left:240px; flex:1; padding:32px; }
+  .page { display:none; }
+  .page.active { display:block; }
+  
+  /* Login */
+  #login-page { display:flex; align-items:center; justify-content:center; min-height:100vh; width:100%; margin-left:-240px; }
+  .login-box { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:48px; width:360px; text-align:center; }
+  .login-box h1 { font-family:'Cinzel',serif; color:var(--accent); font-size:1.8rem; margin-bottom:8px; }
+  .login-box p { color:var(--muted); margin-bottom:32px; font-size:0.9rem; }
+  .input { width:100%; padding:12px 16px; background:var(--bg); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:'Rubik'; margin-bottom:12px; }
+  .btn { padding:12px 24px; border-radius:8px; border:none; cursor:pointer; font-family:'Rubik'; font-weight:600; transition:all 0.2s; }
+  .btn-primary { background:var(--accent); color:#000; width:100%; }
+  .btn-primary:hover { opacity:0.9; }
+  .btn-danger { background:rgba(239,68,68,0.15); color:var(--red); border:1px solid rgba(239,68,68,0.3); font-size:0.8rem; padding:6px 12px; }
+  .btn-blue { background:rgba(59,130,246,0.15); color:var(--blue); border:1px solid rgba(59,130,246,0.3); font-size:0.8rem; padding:6px 12px; }
+  .btn-green { background:rgba(34,197,94,0.15); color:var(--green); border:1px solid rgba(34,197,94,0.3); font-size:0.8rem; padding:6px 12px; }
+
+  /* Stats grid */
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-bottom:32px; }
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:24px; }
+  .stat-card .icon { font-size:2rem; margin-bottom:12px; }
+  .stat-card .value { font-size:2rem; font-weight:700; color:var(--accent); }
+  .stat-card .label { color:var(--muted); font-size:0.85rem; margin-top:4px; }
+
+  /* Table */
+  .table-wrapper { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .table-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border); }
+  .table-header h3 { font-size:1rem; font-weight:600; }
+  table { width:100%; border-collapse:collapse; }
+  th { padding:12px 20px; text-align:left; font-size:0.78rem; text-transform:uppercase; letter-spacing:1px; color:var(--muted); background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border); }
+  td { padding:14px 20px; font-size:0.88rem; border-bottom:1px solid rgba(255,255,255,0.04); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(255,255,255,0.02); }
+  
+  .rank-pill { padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:600; display:inline-block; }
+  .r-oddiy { background:rgba(156,163,175,0.15); color:#9ca3af; }
+  .r-vip { background:rgba(245,158,11,0.15); color:#f59e0b; }
+  .r-pro { background:rgba(59,130,246,0.15); color:#3b82f6; }
+  .r-max { background:rgba(239,68,68,0.15); color:#ef4444; }
+  .r-ultimate { background:rgba(139,92,246,0.15); color:#8b5cf6; }
+  .banned-badge { background:rgba(239,68,68,0.15); color:var(--red); padding:2px 8px; border-radius:6px; font-size:0.75rem; margin-left:6px; }
+
+  /* Search */
+  .search-bar { display:flex; gap:8px; margin-bottom:16px; }
+  .search-bar input { flex:1; padding:10px 16px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:'Rubik'; }
+
+  /* Rank modal for setting rank */
+  .select-rank { padding:8px 12px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Rubik'; }
+
+  .page-title { font-family:'Cinzel',serif; font-size:1.5rem; color:var(--accent); margin-bottom:24px; }
+  .badge-online { background:rgba(34,197,94,0.15); color:var(--green); padding:4px 12px; border-radius:12px; font-size:0.78rem; }
+  .err { color:var(--red); margin-top:8px; font-size:0.85rem; }
+  .rank-dist { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  .rank-bar { flex:1; background:var(--surface2); border-radius:10px; padding:12px; text-align:center; min-width:80px; }
+  .rank-bar .rcount { font-size:1.5rem; font-weight:700; }
+  .rank-bar .rlabel { font-size:0.75rem; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="login-page">
+  <div class="login-box">
+    <div style="font-size:3rem;margin-bottom:16px">🔐</div>
+    <h1>Admin Panel</h1>
+    <p>Faqat adminlar uchun</p>
+    <input type="password" class="input" id="admin-pass" placeholder="Admin paroli" onkeydown="if(event.key==='Enter')adminLogin()" />
+    <div class="err" id="login-err"></div>
+    <button class="btn btn-primary" onclick="adminLogin()" style="margin-top:12px">Kirish</button>
+  </div>
+</div>
+
+<!-- ADMIN LAYOUT -->
+<div id="admin-layout" style="display:none;width:100%">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <h1>🎭 Admin</h1>
+      <p>Mafiya O'yini Boshqaruvi</p>
+    </div>
+    <nav class="nav-menu">
+      <div class="nav-item active" onclick="showPage('dashboard')">📊 Dashboard</div>
+      <div class="nav-item" onclick="showPage('users')">👥 Foydalanuvchilar</div>
+      <div class="nav-item" onclick="showPage('rooms')">🚪 Xonalar</div>
+      <div class="nav-item" onclick="showPage('ranks')">👑 Ranklar</div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="adminLogout()">Chiqish</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <!-- Dashboard -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">📊 Dashboard</div>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="icon">👥</div><div class="value" id="s-users">—</div><div class="label">Jami foydalanuvchilar</div></div>
+        <div class="stat-card"><div class="icon">🚪</div><div class="value" id="s-rooms">—</div><div class="label">Faol xonalar</div></div>
+        <div class="stat-card"><div class="icon">🎮</div><div class="value" id="s-games">—</div><div class="label">Jami o'yinlar</div></div>
+        <div class="stat-card"><div class="icon">⚔️</div><div class="value" id="s-active">—</div><div class="label">Joriy o'yinlar</div></div>
+      </div>
+      <div class="table-wrapper" style="padding:24px">
+        <h3 style="margin-bottom:16px;color:var(--accent)">👑 Rank Taqsimoti</h3>
+        <div class="rank-dist" id="rank-dist"></div>
+      </div>
+    </div>
+
+    <!-- Users -->
+    <div class="page" id="page-users">
+      <div class="page-title">👥 Foydalanuvchilar</div>
+      <div class="search-bar">
+        <input type="text" id="user-search" placeholder="Qidirish..." oninput="filterUsers()" />
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Foydalanuvchi</th>
+              <th>Rank</th>
+              <th>O'yinlar</th>
+              <th>G'alabalar</th>
+              <th>Holat</th>
+              <th>Amallar</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Rooms -->
+    <div class="page" id="page-rooms">
+      <div class="page-title">🚪 Xonalar</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Xona nomi</th><th>Host</th><th>O'yinchilar</th><th>Holat</th><th>Amallar</th></tr>
+          </thead>
+          <tbody id="rooms-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Ranks Manager -->
+    <div class="page" id="page-ranks">
+      <div class="page-title">👑 Rank Boshqaruvi</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
+        <div style="background:var(--surface);border:1px solid rgba(245,158,11,0.3);border-radius:14px;padding:24px;text-align:center">
+          <div style="font-size:2.5rem">⭐</div>
+          <div style="font-family:'Cinzel',serif;color:#f59e0b;font-size:1.1rem;margin:8px 0">VIP</div>
+          <div style="color:var(--muted);font-size:0.85rem">5,000 so'm / oy</div>
+          <div style="margin-top:12px;font-size:0.8rem;color:var(--text);text-align:left;line-height:2">
+            ✅ Maxsus avatar<br>✅ 3 ta xona<br>✅ VIP rang<br>✅ Tez ulanish
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1px solid rgba(59,130,246,0.3);border-radius:14px;padding:24px;text-align:center">
+          <div style="font-size:2.5rem">💎</div>
+          <div style="font-family:'Cinzel',serif;color:#3b82f6;font-size:1.1rem;margin:8px 0">PRO</div>
+          <div style="color:var(--muted);font-size:0.85rem">15,000 so'm / oy</div>
+          <div style="margin-top:12px;font-size:0.8rem;color:var(--text);text-align:left;line-height:2">
+            ✅ VIP + 5 ta xona<br>✅ Statistika<br>✅ Rol tanlash<br>✅ Animatsiya
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1px solid rgba(239,68,68,0.3);border-radius:14px;padding:24px;text-align:center">
+          <div style="font-size:2.5rem">🔥</div>
+          <div style="font-family:'Cinzel',serif;color:#ef4444;font-size:1.1rem;margin:8px 0">MAX</div>
+          <div style="color:var(--muted);font-size:0.85rem">35,000 so'm / oy</div>
+          <div style="margin-top:12px;font-size:0.8rem;color:var(--text);text-align:left;line-height:2">
+            ✅ PRO + 10 ta xona<br>✅ Maxsus karta<br>✅ Xona paroli<br>✅ O'yin boshqarish
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1px solid rgba(139,92,246,0.3);border-radius:14px;padding:24px;text-align:center">
+          <div style="font-size:2.5rem">👑</div>
+          <div style="font-family:'Cinzel',serif;color:#8b5cf6;font-size:1.1rem;margin:8px 0">ULTIMATE</div>
+          <div style="color:var(--muted);font-size:0.85rem">75,000 so'm / oy</div>
+          <div style="margin-top:12px;font-size:0.8rem;color:var(--text);text-align:left;line-height:2">
+            ✅ Hamma narsa cheksiz<br>✅ Maxsus effektlar<br>✅ Moderatsiya<br>✅ Admin kirish
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:24px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px">
+        <h3 style="margin-bottom:16px">Foydalanuvchiga rank berish</h3>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <input type="text" id="grant-username" placeholder="Username" class="input" style="width:200px;margin:0" />
+          <select class="select-rank" id="grant-rank">
+            <option value="oddiy">Oddiy</option>
+            <option value="vip">⭐ VIP</option>
+            <option value="pro">💎 PRO</option>
+            <option value="max">🔥 MAX</option>
+            <option value="ultimate">👑 ULTIMATE</option>
+          </select>
+          <button class="btn btn-primary" onclick="grantRank()" style="width:auto">Rank berish</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let adminToken = null;
+let allUsers = [];
+
+async function adminLogin() {
+  const pass = document.getElementById('admin-pass').value;
+  const res = await fetch('/api/admin/login', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ password: pass })
+  });
+  const data = await res.json();
+  if (!res.ok) { document.getElementById('login-err').textContent = data.error; return; }
+  adminToken = data.token;
+  localStorage.setItem('admin_token', adminToken);
+  showAdmin();
+}
+
+function adminLogout() {
+  adminToken = null;
+  localStorage.removeItem('admin_token');
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('admin-layout').style.display = 'none';
+}
+
+function showAdmin() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('admin-layout').style.display = 'flex';
+  loadDashboard();
+  loadUsers();
+  loadRooms();
+  setInterval(loadDashboard, 10000);
+  setInterval(loadRooms, 5000);
+}
+
+window.onload = () => {
+  const t = localStorage.getItem('admin_token');
+  if (t) { adminToken = t; showAdmin(); }
+};
+
+function authHeaders() {
+  return { Authorization: `Bearer ${adminToken}`, 'Content-Type': 'application/json' };
+}
+
+async function loadDashboard() {
+  const res = await fetch('/api/admin/stats', { headers: authHeaders() });
+  if (!res.ok) { adminLogout(); return; }
+  const d = await res.json();
+  document.getElementById('s-users').textContent = d.totalUsers;
+  document.getElementById('s-rooms').textContent = d.totalRooms;
+  document.getElementById('s-games').textContent = d.totalGames;
+  document.getElementById('s-active').textContent = d.activeRooms;
+  
+  const rankLabels = { oddiy:'👤 Oddiy', vip:'⭐ VIP', pro:'💎 PRO', max:'🔥 MAX', ultimate:'👑 ULTIMATE' };
+  const rankColors = { oddiy:'#9ca3af', vip:'#f59e0b', pro:'#3b82f6', max:'#ef4444', ultimate:'#8b5cf6' };
+  document.getElementById('rank-dist').innerHTML = Object.entries(d.rankDistribution).map(([rank, count]) => `
+    <div class="rank-bar">
+      <div class="rcount" style="color:${rankColors[rank]}">${count}</div>
+      <div class="rlabel">${rankLabels[rank]}</div>
+    </div>
+  `).join('');
+}
+
+async function loadUsers() {
+  const res = await fetch('/api/admin/users', { headers: authHeaders() });
+  if (!res.ok) return;
+  allUsers = await res.json();
+  renderUsers(allUsers);
+}
+
+function filterUsers() {
+  const q = document.getElementById('user-search').value.toLowerCase();
+  renderUsers(allUsers.filter(u => u.username.toLowerCase().includes(q)));
+}
+
+function renderUsers(users) {
+  const rankLabels = { oddiy:'Oddiy', vip:'VIP', pro:'PRO', max:'MAX', ultimate:'ULTIMATE' };
+  document.getElementById('users-tbody').innerHTML = users.map(u => `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <img src="${u.avatar}" style="width:32px;height:32px;border-radius:50%">
+          <span>${escHtml(u.username)}${u.banned?'<span class="banned-badge">Bloklangan</span>':''}</span>
+        </div>
+      </td>
+      <td><span class="rank-pill r-${u.rank}">${rankLabels[u.rank]||u.rank}</span></td>
+      <td>${u.stats?.gamesPlayed||0}</td>
+      <td>${u.stats?.wins||0}</td>
+      <td>${u.online?'<span class="badge-online">🟢 Online</span>':'<span style="color:var(--muted)">Offline</span>'}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <select class="select-rank" style="font-size:0.75rem;padding:4px 8px" id="rank-sel-${u.id}">
+          ${['oddiy','vip','pro','max','ultimate'].map(r=>`<option value="${r}" ${u.rank===r?'selected':''}>${r}</option>`).join('')}
+        </select>
+        <button class="btn btn-blue" onclick="setUserRank('${u.id}')">Rank</button>
+        <button class="btn btn-danger" onclick="toggleBan('${u.id}', ${!u.banned})">${u.banned?'Ochish':'Bloklash'}</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--muted)">Foydalanuvchilar yo\'q</td></tr>';
+}
+
+async function setUserRank(userId) {
+  const rank = document.getElementById(`rank-sel-${userId}`).value;
+  const res = await fetch('/api/admin/set-rank', {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify({ userId, rank })
+  });
+  if (res.ok) { alert('Rank o\'rnatildi!'); loadUsers(); }
+}
+
+async function toggleBan(userId, banned) {
+  await fetch('/api/admin/ban-user', {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify({ userId, banned })
+  });
+  loadUsers();
+}
+
+async function loadRooms() {
+  const res = await fetch('/api/admin/rooms', { headers: authHeaders() });
+  if (!res.ok) return;
+  const rooms = await res.json();
+  document.getElementById('rooms-tbody').innerHTML = rooms.length ? rooms.map(r => `
+    <tr>
+      <td>${escHtml(r.name)}</td>
+      <td>${escHtml(r.host)}</td>
+      <td>${r.players.length} / ${r.maxPlayers}</td>
+      <td><span style="color:${r.status==='playing'?'var(--green)':'var(--accent)'}">${r.status==='playing'?'🎮 O\'yinda':'⏳ Kutilmoqda'}</span></td>
+      <td><span style="color:var(--muted);font-size:0.8rem">${r.id}</span></td>
+    </tr>
+  `).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted)">Xonalar yo\'q</td></tr>';
+}
+
+async function grantRank() {
+  const username = document.getElementById('grant-username').value.trim();
+  const rank = document.getElementById('grant-rank').value;
+  if (!username) { alert('Username kiriting'); return; }
+  
+  const user = allUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
+  if (!user) { alert('Foydalanuvchi topilmadi'); return; }
+  
+  const res = await fetch('/api/admin/set-rank', {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify({ userId: user.id, rank })
+  });
+  if (res.ok) { alert(`${username} ga ${rank} rank berildi!`); loadUsers(); }
+}
+
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

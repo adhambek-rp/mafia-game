@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mafiya O'yini 🎮</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131f;
+    --surface2: #1a1a2e;
+    --border: rgba(255,255,255,0.08);
+    --text: #e8e8f0;
+    --muted: #6b7280;
+    --accent: #c9a84c;
+    --accent2: #e8c76d;
+    --red: #ef4444;
+    --green: #22c55e;
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --gold: #f59e0b;
+    --rank-vip: #f59e0b;
+    --rank-pro: #3b82f6;
+    --rank-max: #ef4444;
+    --rank-ultimate: #8b5cf6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Rubik', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(201,168,76,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.06) 0%, transparent 50%);
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px;
+    background: rgba(10,10,15,0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--accent); letter-spacing: 2px; }
+  .logo span { color: var(--text); font-size: 0.9rem; display: block; font-family: 'Rubik', sans-serif; letter-spacing: 0; font-weight: 300; }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .online-badge {
+    background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3);
+    color: #22c55e; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem;
+  }
+  .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-family: 'Rubik'; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .btn-danger:hover { background: rgba(239,68,68,0.25); }
+  .btn-green { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .btn-green:hover { background: rgba(34,197,94,0.25); }
+  .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+
+  /* ===== SCREENS ===== */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ===== AUTH SCREEN ===== */
+  #auth-screen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .auth-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 48px; width: 100%; max-width: 440px;
+    position: relative; overflow: hidden;
+  }
+  .auth-box::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--purple), var(--accent));
+  }
+  .auth-title { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--accent); text-align: center; margin-bottom: 8px; }
+  .auth-subtitle { color: var(--muted); text-align: center; margin-bottom: 32px; font-size: 0.9rem; }
+  .auth-tabs { display: flex; gap: 4px; background: var(--bg); border-radius: 10px; padding: 4px; margin-bottom: 24px; }
+  .auth-tab { flex: 1; padding: 8px; border: none; background: transparent; color: var(--muted); cursor: pointer; border-radius: 8px; font-family: 'Rubik'; transition: all 0.2s; }
+  .auth-tab.active { background: var(--surface2); color: var(--text); }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; color: var(--muted); font-size: 0.85rem; margin-bottom: 6px; }
+  .form-group input {
+    width: 100%; padding: 12px 16px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text); font-family: 'Rubik'; font-size: 0.95rem; transition: border-color 0.2s;
+  }
+  .form-group input:focus { outline: none; border-color: var(--accent); }
+  .auth-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: var(--red); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; display: none; }
+  .auth-btn { width: 100%; padding: 14px; background: var(--accent); color: #000; border: none; border-radius: 10px; font-family: 'Rubik'; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; }
+  .auth-btn:hover { background: var(--accent2); transform: translateY(-2px); }
+
+  /* ===== LOBBY ===== */
+  #lobby-screen { padding: 24px 32px; }
+  .lobby-grid { display: grid; grid-template-columns: 280px 1fr 280px; gap: 24px; max-width: 1400px; margin: 0 auto; }
+  
+  .panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+  }
+  .panel-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.02);
+  }
+  .panel-title { font-weight: 600; font-size: 0.9rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .panel-body { padding: 20px; }
+
+  /* User panel */
+  .user-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent); margin: 0 auto 16px; display: block; }
+  .user-name { text-align: center; font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+  .rank-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;
+    margin: 0 auto 20px; display: flex; justify-content: center; width: fit-content;
+  }
+  .rank-oddiy { background: rgba(156,163,175,0.15); color: #9ca3af; border: 1px solid rgba(156,163,175,0.3); }
+  .rank-vip { background: rgba(245,158,11,0.15); color: var(--rank-vip); border: 1px solid rgba(245,158,11,0.3); }
+  .rank-pro { background: rgba(59,130,246,0.15); color: var(--rank-pro); border: 1px solid rgba(59,130,246,0.3); }
+  .rank-max { background: rgba(239,68,68,0.15); color: var(--rank-max); border: 1px solid rgba(239,68,68,0.3); }
+  .rank-ultimate { background: rgba(139,92,246,0.15); color: var(--rank-ultimate); border: 1px solid rgba(139,92,246,0.3); }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .stat-item { text-align: center; background: var(--bg); border-radius: 10px; padding: 12px 8px; }
+  .stat-value { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+
+  /* Rooms panel */
+  .rooms-list { display: flex; flex-direction: column; gap: 10px; max-height: 500px; overflow-y: auto; }
+  .room-card {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .room-card:hover { border-color: var(--accent); background: rgba(201,168,76,0.05); }
+  .room-info .room-name { font-weight: 600; font-size: 0.95rem; }
+  .room-info .room-meta { color: var(--muted); font-size: 0.8rem; margin-top: 4px; }
+  .room-players { text-align: right; }
+  .room-players .count { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+  .room-players .max { color: var(--muted); font-size: 0.8rem; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .status-waiting { background: var(--green); }
+  .status-playing { background: var(--red); }
+  .create-room-btn { width: 100%; margin-top: 12px; }
+
+  /* Friends panel */
+  .friends-list { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
+  .friend-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg); border-radius: 10px; }
+  .friend-avatar { width: 36px; height: 36px; border-radius: 50%; }
+  .friend-name { font-size: 0.9rem; font-weight: 500; }
+  .friend-status { font-size: 0.75rem; color: var(--muted); }
+  .online-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-left: auto; box-shadow: 0 0 6px var(--green); }
+  .add-friend-form { display: flex; gap: 8px; margin-top: 12px; }
+  .add-friend-form input { flex: 1; padding: 8px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Rubik'; }
+
+  /* ===== RANKS MODAL ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+    z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;
+    display: none;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; }
+  .modal-header { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h2 { font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--accent); }
+  .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.5rem; }
+  .modal-body { padding: 32px; }
+  .ranks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+  .rank-card {
+    background: var(--bg); border: 2px solid var(--border);
+    border-radius: 16px; padding: 24px 16px; text-align: center; cursor: pointer;
+    transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .rank-card:hover { transform: translateY(-4px); }
+  .rank-card.rank-vip:hover { border-color: var(--rank-vip); box-shadow: 0 8px 32px rgba(245,158,11,0.2); }
+  .rank-card.rank-pro:hover { border-color: var(--rank-pro); box-shadow: 0 8px 32px rgba(59,130,246,0.2); }
+  .rank-card.rank-max:hover { border-color: var(--rank-max); box-shadow: 0 8px 32px rgba(239,68,68,0.2); }
+  .rank-card.rank-ultimate:hover { border-color: var(--rank-ultimate); box-shadow: 0 8px 32px rgba(139,92,246,0.2); }
+  .rank-icon { font-size: 3rem; margin-bottom: 12px; display: block; }
+  .rank-name { font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+  .rank-price { font-size: 1.2rem; font-weight: 700; margin: 12px 0; }
+  .rank-abilities { list-style: none; text-align: left; font-size: 0.78rem; color: var(--muted); }
+  .rank-abilities li { padding: 4px 0; }
+  .rank-abilities li::before { content: '✓ '; color: var(--green); }
+  .buy-btn { width: 100%; margin-top: 16px; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-family: 'Rubik'; transition: all 0.2s; }
+
+  /* ===== ROOM SCREEN ===== */
+  #room-screen { padding: 24px; }
+  .room-layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; max-width: 1200px; margin: 0 auto; }
+  .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .player-card {
+    background: var(--surface); border: 2px solid var(--border);
+    border-radius: 14px; padding: 20px 12px; text-align: center; position: relative; transition: all 0.3s;
+  }
+  .player-card.host { border-color: var(--accent); }
+  .player-card.dead { opacity: 0.4; filter: grayscale(1); }
+  .player-card.voted { border-color: var(--red); }
+  .player-card.selectable { cursor: pointer; }
+  .player-card.selectable:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .player-avatar { width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 10px; display: block; }
+  .player-name { font-size: 0.85rem; font-weight: 600; word-break: break-all; }
+  .player-badge { font-size: 0.7rem; margin-top: 4px; }
+  .host-crown { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 1.2rem; }
+  .ready-indicator { position: absolute; top: 8px; right: 8px; width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
+  .ready-indicator.ready { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .dead-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+
+  /* Game phase banner */
+  .phase-banner {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px; margin-bottom: 20px; text-align: center;
+  }
+  .phase-banner h2 { font-family: 'Cinzel', serif; font-size: 1.3rem; margin-bottom: 8px; }
+  .phase-timer { font-size: 2rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  /* Room chat */
+  .chat-panel { display: flex; flex-direction: column; height: 600px; }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .chat-msg { font-size: 0.85rem; line-height: 1.5; }
+  .chat-msg .from { font-weight: 600; }
+  .chat-msg.system { color: var(--accent); font-style: italic; }
+  .chat-msg.mafia-msg { color: #ff6b6b; }
+  .chat-input-row { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); }
+  .chat-input { flex: 1; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Rubik'; }
+
+  /* Role card */
+  .role-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px; text-align: center; margin-bottom: 16px;
+  }
+  .role-icon { font-size: 3rem; }
+  .role-name { font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--accent); margin: 8px 0; }
+  .role-desc { font-size: 0.85rem; color: var(--muted); }
+  .role-teammates { margin-top: 12px; font-size: 0.8rem; color: #ff6b6b; }
+
+  /* ===== GAME OVER ===== */
+  .gameover-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
+    z-index: 500; display: flex; align-items: center; justify-content: center;
+    display: none; animation: fadeIn 0.5s ease;
+  }
+  .gameover-overlay.show { display: flex; }
+  .gameover-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 24px; padding: 48px; text-align: center; max-width: 500px;
+  }
+  .gameover-emoji { font-size: 5rem; display: block; margin-bottom: 16px; animation: bounce 1s infinite; }
+  .gameover-title { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--accent); margin-bottom: 8px; }
+  .winners-list { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0; }
+  .winner-chip { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: var(--green); padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; }
+
+  /* ===== TOAST ===== */
+  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 20px; min-width: 280px;
+    animation: slideIn 0.3s ease; font-size: 0.9rem;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .toast.success { border-color: rgba(34,197,94,0.5); }
+  .toast.error { border-color: rgba(239,68,68,0.5); }
+  .toast.info { border-color: rgba(59,130,246,0.5); }
+
+  /* ===== CREATE ROOM MODAL ===== */
+  .create-room-form { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0 } to { transform: translateX(0); opacity: 1 } }
+  @keyframes bounce { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-20px) } }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.5 } }
+
+  .loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 12px; }
+  @keyframes spin { to { transform: rotate(360deg) } }
+
+  .hero-text { text-align: center; padding: 20px; margin-bottom: 4px; }
+  .hero-text h1 { font-family: 'Cinzel', serif; font-size: 2.5rem; color: var(--accent); }
+  .hero-text p { color: var(--muted); margin-top: 8px; }
+
+  @media (max-width: 900px) {
+    .lobby-grid { grid-template-columns: 1fr; }
+    .room-layout { grid-template-columns: 1fr; }
+    nav { padding: 12px 16px; }
+    .logo { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="main-nav" style="display:none">
+  <div class="logo">🎭 MAF<span>O'zbek Mafiya O'yini</span></div>
+  <div class="nav-right">
+    <div class="online-badge">🟢 <span id="online-count">0</span> online</div>
+    <button class="btn btn-outline btn-sm" onclick="openRanksModal()">👑 Ranklar</button>
+    <button class="btn btn-outline btn-sm" id="nav-user">...</button>
+    <button class="btn btn-danger btn-sm" onclick="logout()">Chiqish</button>
+  </div>
+</nav>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" class="screen active">
+  <div class="auth-box">
+    <div class="auth-title">🎭 MAF</div>
+    <div class="auth-subtitle">O'zbek Mafiya O'yini — Eng yaxshi o'yin</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Kirish</button>
+      <button class="auth-tab" onclick="switchTab('register')">Ro'yxatdan o'tish</button>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
+    <div class="form-group">
+      <label>Foydalanuvchi nomi</label>
+      <input type="text" id="auth-username" placeholder="Username kiriting" />
+    </div>
+    <div class="form-group">
+      <label>Parol</label>
+      <input type="password" id="auth-password" placeholder="Parol kiriting" onkeydown="if(event.key==='Enter')authSubmit()" />
+    </div>
+    <button class="auth-btn" id="auth-btn" onclick="authSubmit()">Kirish</button>
+    <div style="text-align:center;margin-top:20px;color:var(--muted);font-size:0.8rem">
+      Demo: admin / admin123 kiriting
+    </div>
+  </div>
+</div>
+
+<!-- LOBBY SCREEN -->
+<div id="lobby-screen" class="screen">
+  <div class="hero-text">
+    <h1>🎭 Mafia O'yiniga Xush Kelibsiz</h1>
+    <p>Xona yarating yoki mavjud xonaga qo'shiling va o'ynang!</p>
+  </div>
+  <div class="lobby-grid">
+    <!-- Left: User Panel -->
+    <div>
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-body">
+          <img id="user-avatar" class="user-avatar" src="" alt="">
+          <div class="user-name" id="user-name">...</div>
+          <div class="rank-badge" id="user-rank-badge">...</div>
+          <div class="stat-grid">
+            <div class="stat-item"><div class="stat-value" id="stat-games">0</div><div class="stat-label">O'yinlar</div></div>
+            <div class="stat-item"><div class="stat-value" id="stat-wins">0</div><div class="stat-label">G'alabalar</div></div>
+            <div class="stat-item"><div class="stat-value" id="stat-wr">0%</div><div class="stat-label">Win Rate</div></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="openRanksModal()">👑 Rank olish</button>
+        </div>
+      </div>
+      <!-- Friends -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Do'stlar</span>
+        </div>
+        <div class="panel-body">
+          <div class="friends-list" id="friends-list"><div style="color:var(--muted);font-size:0.85rem;text-align:center">Do'stlar yo'q</div></div>
+          <div class="add-friend-form">
+            <input type="text" id="friend-username-input" placeholder="Username..." />
+            <button class="btn btn-outline btn-sm" onclick="addFriend()">+ Qo'sh</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center: Rooms -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">🚪 Xonalar</span>
+        <button class="btn btn-primary btn-sm" onclick="openCreateRoom()">+ Xona yaratish</button>
+      </div>
+      <div class="panel-body">
+        <div class="rooms-list" id="rooms-list">
+          <div class="loading"><div class="spinner"></div>Yuklanmoqda...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Chat / Leaderboard -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">🏆 Eng Yaxshilar</span>
+      </div>
+      <div class="panel-body">
+        <div style="color:var(--muted);text-align:center;font-size:0.85rem;padding:20px">
+          O'yin statistikasi tez orada!
+        </div>
+        <div style="margin-top:16px;padding:16px;background:var(--bg);border-radius:12px;text-align:center">
+          <div style="font-size:0.8rem;color:var(--muted);margin-bottom:8px">O'yin qoidalari</div>
+          <div style="font-size:0.82rem;color:var(--text);line-height:1.8">
+            🔫 Mafiya — Fuqarolarni yo'q qiladi<br>
+            👮 Detektiv — Mafiachini topadi<br>
+            💊 Doktor — Birini qutqaradi<br>
+            👥 Fuqaro — Mafiachini topishga harakat qiladi<br>
+            👑 Don — Mafiya boshlig'i
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROOM SCREEN -->
+<div id="room-screen" class="screen">
+  <div style="max-width:1200px;margin:0 auto;padding:24px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <button class="btn btn-outline btn-sm" onclick="leaveRoom()">← Orqaga</button>
+      <h2 id="room-title" style="font-family:'Cinzel',serif;color:var(--accent)">Xona</h2>
+      <span id="room-id-badge" style="color:var(--muted);font-size:0.85rem"></span>
+    </div>
+    <div class="room-layout">
+      <div>
+        <div id="phase-banner" class="phase-banner" style="display:none">
+          <h2 id="phase-text">...</h2>
+          <div class="phase-timer" id="phase-timer">--</div>
+        </div>
+        <div id="role-card" class="role-card" style="display:none">
+          <div class="role-icon" id="role-icon">?</div>
+          <div class="role-name" id="role-name">Rol</div>
+          <div class="role-desc" id="role-desc"></div>
+          <div class="role-teammates" id="role-teammates"></div>
+        </div>
+        <div class="players-grid" id="players-grid"></div>
+        <div id="room-controls" style="display:flex;gap:10px;margin-top:12px">
+          <button id="ready-btn" class="btn btn-green" onclick="toggleReady()">✓ Tayyor</button>
+          <button id="start-btn" class="btn btn-primary" onclick="startGame()" style="display:none">▶ Boshlash</button>
+        </div>
+      </div>
+      <div class="panel chat-panel">
+        <div class="panel-header"><span class="panel-title">💬 Chat</span></div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="chat-input" placeholder="Xabar yozing..." onkeydown="if(event.key==='Enter')sendChat()" />
+          <button class="btn btn-primary btn-sm" onclick="sendChat()">→</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<!-- Ranks Modal -->
+<div class="modal-overlay" id="ranks-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>👑 Rank Tizimi</h2>
+      <button class="modal-close" onclick="closeModal('ranks-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align:center;color:var(--muted);margin-bottom:24px;font-size:0.9rem">
+        Rank olib, maxsus imkoniyatlardan foydalaning! Oylik narxlar (so'm)
+      </div>
+      <div class="ranks-grid" id="ranks-grid"></div>
+      <div style="margin-top:24px;padding:16px;background:var(--bg);border-radius:12px;font-size:0.82rem;color:var(--muted)">
+        💳 To'lash uchun: To'lov tugmasini bosing va admin bilan bog'laning yoki Payme/Click orqali to'lang.
+        To'lovdan so'ng admin rank faollashtiradi.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Room Modal -->
+<div class="modal-overlay" id="create-room-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <h2>🚪 Xona Yaratish</h2>
+      <button class="modal-close" onclick="closeModal('create-room-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="create-room-form">
+        <div class="form-group">
+          <label>Xona nomi</label>
+          <input type="text" id="room-name-input" placeholder="Masalan: Toshkent Mafiasi" />
+        </div>
+        <div class="form-group">
+          <label>Max o'yinchilar (4-12)</label>
+          <input type="number" id="room-max-input" value="6" min="4" max="12" />
+        </div>
+        <div class="form-group">
+          <label>Parol (ixtiyoriy)</label>
+          <input type="password" id="room-pass-input" placeholder="Xususiy xona uchun parol" />
+        </div>
+        <button class="btn btn-primary" onclick="createRoom()" style="width:100%">Yaratish</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Join Room Modal -->
+<div class="modal-overlay" id="join-room-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h2>🚪 Xonaga Kirish</h2>
+      <button class="modal-close" onclick="closeModal('join-room-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Xona paroli</label>
+        <input type="password" id="join-pass-input" placeholder="Parolni kiriting" />
+      </div>
+      <button class="btn btn-primary" onclick="confirmJoinRoom()" style="width:100%">Kirish</button>
+    </div>
+  </div>
+</div>
+
+<!-- Game Over Overlay -->
+<div class="gameover-overlay" id="gameover-overlay">
+  <div class="gameover-box">
+    <span class="gameover-emoji" id="gameover-emoji">🏆</span>
+    <div class="gameover-title" id="gameover-title">O'yin Tugadi!</div>
+    <div style="font-size:1.1rem;margin-bottom:16px;color:var(--muted)" id="gameover-result"></div>
+    <div style="font-size:0.9rem;color:var(--muted);margin-bottom:12px">G'oliblar:</div>
+    <div class="winners-list" id="gameover-winners"></div>
+    <div style="margin-top:24px;margin-bottom:16px">
+      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:8px">Barcha rollar:</div>
+      <div id="gameover-roles" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center"></div>
+    </div>
+    <button class="btn btn-primary" onclick="exitToLobby()" style="width:100%">Lobbiga qaytish</button>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const API = '';
+let socket, token, currentUser, currentRoom, pendingJoinRoomId, timerInterval;
+
+// ===== INIT =====
+window.onload = () => {
+  const savedToken = localStorage.getItem('mafia_token');
+  if (savedToken) { token = savedToken; fetchMe(); }
+};
+
+async function fetchMe() {
+  try {
+    const res = await fetch(`${API}/api/me`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) throw new Error();
+    currentUser = await res.json();
+    initApp();
+  } catch { localStorage.removeItem('mafia_token'); }
+}
+
+function initApp() {
+  document.getElementById('main-nav').style.display = 'flex';
+  showScreen('lobby-screen');
+  updateUserPanel();
+  initSocket();
+  loadRooms();
+  loadFriends();
+}
+
+function initSocket() {
+  socket = io();
+  socket.on('connect', () => socket.emit('authenticate', token));
+  socket.on('authenticated', (user) => { currentUser = user; updateUserPanel(); });
+  socket.on('auth_error', (msg) => showToast(msg, 'error'));
+  socket.on('online_count', (n) => document.getElementById('online-count').textContent = n);
+  socket.on('rooms_updated', renderRooms);
+  socket.on('error', (msg) => showToast(msg, 'error'));
+  socket.on('room_created', ({ roomId }) => { closeModal('create-room-modal'); joinRoomById(roomId); });
+  socket.on('joined_room', (room) => { currentRoom = room; showRoomScreen(); });
+  socket.on('room_updated', (room) => { currentRoom = room; renderPlayers(); });
+  socket.on('game_started', ({ message }) => { showToast(message, 'success'); });
+  socket.on('your_role', (data) => showRole(data));
+  socket.on('phase_change', (data) => handlePhaseChange(data));
+  socket.on('vote_update', (votes) => renderVotes(votes));
+  socket.on('night_action_required', (data) => showNightAction(data));
+  socket.on('night_results', (results) => showNightResults(results));
+  socket.on('player_eliminated', (data) => showElimination(data));
+  socket.on('detective_result', (data) => showDetectiveResult(data));
+  socket.on('chat_message', (msg) => addChatMessage(msg));
+  socket.on('mafia_chat', (msg) => addChatMessage(msg, true));
+  socket.on('game_message', (msg) => addSystemMessage(msg));
+  socket.on('action_confirmed', (msg) => showToast(msg, 'info'));
+  socket.on('game_over', (data) => showGameOver(data));
+  socket.on('friend_invite', (data) => {
+    showToast(`${data.from} sizni xonaga taklif qildi!`, 'info');
+    if (confirm(`${data.from} sizni xonaga taklif qildi. Kirmoqchimisiz?`)) {
+      joinRoomById(data.roomId);
+    }
+  });
+}
+
+// ===== AUTH =====
+let authMode = 'login';
+function switchTab(mode) {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i===0&&mode==='login')||(i===1&&mode==='register')));
+  document.getElementById('auth-btn').textContent = mode === 'login' ? 'Kirish' : 'Ro\'yxatdan o\'tish';
+}
+
+async function authSubmit() {
+  const username = document.getElementById('auth-username').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+  if (!username || !password) { errEl.textContent = 'Barcha maydonlarni to\'ldiring'; errEl.style.display = 'block'; return; }
+  
+  const endpoint = authMode === 'login' ? '/api/login' : '/api/register';
+  try {
+    const res = await fetch(`${API}${endpoint}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ username, password }) });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; return; }
+    token = data.token; currentUser = data.user;
+    localStorage.setItem('mafia_token', token);
+    initApp();
+  } catch { errEl.textContent = 'Server bilan bog\'liq xatolik'; errEl.style.display = 'block'; }
+}
+
+function logout() {
+  localStorage.removeItem('mafia_token');
+  token = null; currentUser = null;
+  if (socket) socket.disconnect();
+  showScreen('auth-screen');
+  document.getElementById('main-nav').style.display = 'none';
+}
+
+// ===== USER PANEL =====
+function updateUserPanel() {
+  if (!currentUser) return;
+  const rankInfo = { oddiy:{label:'👤 Oddiy'}, vip:{label:'⭐ VIP'}, pro:{label:'💎 PRO'}, max:{label:'🔥 MAX'}, ultimate:{label:'👑 ULTIMATE'} };
+  document.getElementById('user-avatar').src = currentUser.avatar;
+  document.getElementById('user-name').textContent = currentUser.username;
+  const rb = document.getElementById('user-rank-badge');
+  rb.textContent = rankInfo[currentUser.rank]?.label || currentUser.rank;
+  rb.className = `rank-badge rank-${currentUser.rank}`;
+  document.getElementById('nav-user').textContent = `${rankInfo[currentUser.rank]?.label} ${currentUser.username}`;
+  document.getElementById('stat-games').textContent = currentUser.stats?.gamesPlayed || 0;
+  document.getElementById('stat-wins').textContent = currentUser.stats?.wins || 0;
+  const wr = currentUser.stats?.gamesPlayed > 0 ? Math.round((currentUser.stats.wins/currentUser.stats.gamesPlayed)*100) : 0;
+  document.getElementById('stat-wr').textContent = wr + '%';
+}
+
+// ===== ROOMS =====
+async function loadRooms() {
+  const res = await fetch(`${API}/api/rooms`);
+  const rooms = await res.json();
+  renderRooms(rooms);
+}
+
+function renderRooms(rooms) {
+  const el = document.getElementById('rooms-list');
+  if (!rooms.length) { el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px">Hech qanday xona yo\'q.<br>Birinchi bo\'ling!</div>'; return; }
+  el.innerHTML = rooms.map(r => `
+    <div class="room-card" onclick="clickJoinRoom('${r.id}', ${!!r.hasPassword})">
+      <div class="room-info">
+        <div class="room-name">${escHtml(r.name)} ${r.hasPassword ? '🔒' : ''}</div>
+        <div class="room-meta"><span class="status-dot status-${r.status}"></span>${r.host} • ${r.status === 'waiting' ? 'Kutilmoqda' : 'O\'yinda'}</div>
+      </div>
+      <div class="room-players">
+        <div class="count">${r.players}</div>
+        <div class="max">/ ${r.maxPlayers}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function clickJoinRoom(roomId, hasPassword) {
+  if (hasPassword) {
+    pendingJoinRoomId = roomId;
+    openModal('join-room-modal');
+  } else {
+    joinRoomById(roomId);
+  }
+}
+
+function confirmJoinRoom() {
+  const pass = document.getElementById('join-pass-input').value;
+  closeModal('join-room-modal');
+  joinRoomById(pendingJoinRoomId, pass);
+}
+
+function joinRoomById(roomId, password = '') {
+  socket.emit('join_room', { roomId, password });
+}
+
+function openCreateRoom() { openModal('create-room-modal'); }
+
+function createRoom() {
+  const name = document.getElementById('room-name-input').value.trim() || `${currentUser.username}ning xonasi`;
+  const maxPlayers = parseInt(document.getElementById('room-max-input').value) || 6;
+  const password = document.getElementById('room-pass-input').value || null;
+  socket.emit('create_room', { name, maxPlayers, password, private: !!password });
+}
+
+// ===== ROOM SCREEN =====
+function showRoomScreen() {
+  showScreen('room-screen');
+  document.getElementById('room-title').textContent = currentRoom.name;
+  document.getElementById('room-id-badge').textContent = `ID: ${currentRoom.id}`;
+  renderPlayers();
+  document.getElementById('chat-messages').innerHTML = '';
+  addSystemMessage({ text: `Xonaga xush kelibsiz! ID: ${currentRoom.id}` });
+  
+  const isHost = currentRoom.hostId === currentUser.id;
+  document.getElementById('start-btn').style.display = isHost ? 'inline-flex' : 'none';
+}
+
+function renderPlayers() {
+  if (!currentRoom) return;
+  const grid = document.getElementById('players-grid');
+  const isHost = currentRoom.hostId === currentUser.id;
+  const isVoting = currentRoom.phase === 'day_vote';
+  
+  grid.innerHTML = currentRoom.players.map(p => {
+    const isMe = p.id === currentUser.id;
+    const isSelectable = isVoting && !isMe && p.alive;
+    return `
+      <div class="player-card ${p.id === currentRoom.hostId ? 'host' : ''} ${!p.alive ? 'dead' : ''} ${isSelectable ? 'selectable' : ''}"
+           onclick="${isSelectable ? `castVote('${p.id}')` : ''}">
+        ${p.id === currentRoom.hostId ? '<div class="host-crown">👑</div>' : ''}
+        <div class="ready-indicator ${p.ready ? 'ready' : ''}"></div>
+        ${!p.alive ? '<div class="dead-icon">💀</div>' : ''}
+        <img class="player-avatar" src="${p.avatar || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${p.username}`}" alt="">
+        <div class="player-name">${escHtml(p.username)}</div>
+        <div class="player-badge"><span class="rank-badge rank-${p.rank}" style="font-size:0.65rem;padding:2px 8px">${getRankLabel(p.rank)}</span></div>
+        ${isMe ? '<div style="font-size:0.7rem;color:var(--accent);margin-top:4px">Siz</div>' : ''}
+      </div>
+    `;
+  }).join('');
+  
+  const isHostBtn = document.getElementById('start-btn');
+  if (isHostBtn) isHostBtn.style.display = isHost ? 'inline-flex' : 'none';
+}
+
+function toggleReady() { socket.emit('toggle_ready'); }
+function startGame() { socket.emit('start_game'); }
+function leaveRoom() { socket.emit('leave_room'); showScreen('lobby-screen'); currentRoom = null; loadRooms(); }
+
+// ===== GAME PHASES =====
+function showRole({ role, roleInfo, teammates }) {
+  const el = document.getElementById('role-card');
+  el.style.display = 'block';
+  document.getElementById('role-icon').textContent = roleInfo.icon;
+  document.getElementById('role-name').textContent = roleInfo.name;
+  document.getElementById('role-desc').textContent = roleInfo.description;
+  const tm = document.getElementById('role-teammates');
+  tm.textContent = teammates.length ? `🤝 Hamkorlar: ${teammates.join(', ')}` : '';
+}
+
+function handlePhaseChange({ phase, message, duration, alivePlayers }) {
+  const banner = document.getElementById('phase-banner');
+  banner.style.display = 'block';
+  document.getElementById('phase-text').textContent = message;
+  
+  clearInterval(timerInterval);
+  let timeLeft = duration || 0;
+  document.getElementById('phase-timer').textContent = timeLeft + 's';
+  if (timeLeft > 0) {
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      document.getElementById('phase-timer').textContent = timeLeft + 's';
+      if (timeLeft <= 0) clearInterval(timerInterval);
+    }, 1000);
+  }
+  
+  addSystemMessage({ text: message });
+  renderPlayers();
+}
+
+function castVote(targetId) {
+  socket.emit('vote', targetId);
+  showToast('Ovoz berildi!', 'success');
+  renderPlayers();
+}
+
+function renderVotes(votes) {
+  // Show vote indicators on player cards
+}
+
+function showNightAction({ role, targets }) {
+  const roleLabels = { MAFIA: 'Kim o\'ldirilsin?', DON: 'Kim o\'ldirilsin?', DETECTIVE: 'Kim tekshirilsin?', DOCTOR: 'Kim davolansin?' };
+  const label = roleLabels[role] || 'Harakat tanlang';
+  
+  const overlay = document.createElement('div');
+  overlay.id = 'night-action-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:400;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;text-align:center;max-width:500px;width:90%">
+      <div style="font-size:2rem;margin-bottom:16px">🌙</div>
+      <h3 style="font-family:'Cinzel',serif;color:var(--accent);margin-bottom:8px">Kecha harakati</h3>
+      <p style="color:var(--muted);margin-bottom:24px">${label}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center">
+        ${targets.map(t => `<button class="btn btn-outline" onclick="doNightAction('${t.id}')" style="min-width:120px">${escHtml(t.username)}</button>`).join('')}
+      </div>
+      <button class="btn btn-danger" style="width:100%;margin-top:16px" onclick="skipNightAction()">O'tkazib yuborish</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function doNightAction(targetId) {
+  socket.emit('night_action', targetId);
+  removeNightOverlay();
+}
+
+function skipNightAction() { removeNightOverlay(); }
+function removeNightOverlay() { document.getElementById('night-action-overlay')?.remove(); }
+
+function showNightResults(results) {
+  removeNightOverlay();
+  results.forEach(r => {
+    if (r.type === 'kill') addSystemMessage({ text: `💀 ${r.username} o'ldirildi! (${r.role?.name})`, type: 'warning' });
+    if (r.type === 'saved') addSystemMessage({ text: '💊 Doktor birini qutqardi!', type: 'info' });
+  });
+  if (results.length === 0) addSystemMessage({ text: '🌅 Hech kim o\'lmadi!', type: 'info' });
+  renderPlayers();
+}
+
+function showElimination({ username, role, voteCounts }) {
+  addSystemMessage({ text: `⚖️ ${username} chiqarildi! (${role?.name})`, type: 'warning' });
+  renderPlayers();
+}
+
+function showDetectiveResult({ username, isMafia }) {
+  showToast(`🔍 ${username}: ${isMafia ? '🔫 MAFIYA!' : '👤 Fuqaro'}`, isMafia ? 'error' : 'success');
+}
+
+function showGameOver({ winner, winnerTeam, players, winners }) {
+  const overlay = document.getElementById('gameover-overlay');
+  overlay.classList.add('show');
+  document.getElementById('gameover-emoji').textContent = winner === 'mafia' ? '🔫' : '👮';
+  document.getElementById('gameover-title').textContent = 'O\'yin Tugadi!';
+  document.getElementById('gameover-result').textContent = winnerTeam;
+  document.getElementById('gameover-winners').innerHTML = winners.map(w => `<span class="winner-chip">🏆 ${escHtml(w)}</span>`).join('');
+  document.getElementById('gameover-roles').innerHTML = players.map(p => `
+    <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:0.78rem">
+      ${p.role?.icon || '?'} ${escHtml(p.username)}<br><span style="color:var(--muted)">${p.role?.name}</span>
+    </span>
+  `).join('');
+}
+
+function exitToLobby() {
+  document.getElementById('gameover-overlay').classList.remove('show');
+  leaveRoom();
+}
+
+// ===== CHAT =====
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  if (!input.value.trim()) return;
+  socket.emit('chat_message', input.value.trim());
+  input.value = '';
+}
+
+function addChatMessage({ from, message, rank, timestamp }, isMafia = false) {
+  const el = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${isMafia ? 'mafia-msg' : ''}`;
+  div.innerHTML = `<span class="from" style="color:${getRankColor(rank)}">${getRankBadge(rank)} ${escHtml(from)}:</span> ${escHtml(message)}`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function addSystemMessage({ text, type = 'info' }) {
+  const el = document.getElementById('chat-messages');
+  if (!el) return;
+  const div = document.createElement('div');
+  div.className = 'chat-msg system';
+  div.style.color = type === 'warning' ? 'var(--red)' : type === 'error' ? 'var(--red)' : 'var(--accent)';
+  div.textContent = text;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+// ===== FRIENDS =====
+async function loadFriends() {
+  const res = await fetch(`${API}/api/friends`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) return;
+  const friends = await res.json();
+  const el = document.getElementById('friends-list');
+  if (!friends.length) { el.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;text-align:center">Do\'stlar yo\'q</div>'; return; }
+  el.innerHTML = friends.map(f => `
+    <div class="friend-item">
+      <img class="friend-avatar" src="https://api.dicebear.com/7.x/pixel-art/svg?seed=${f.username}" alt="">
+      <div>
+        <div class="friend-name">${escHtml(f.username)}</div>
+        <div class="friend-status">${getRankLabel(f.rank)}</div>
+      </div>
+      ${f.online ? '<div class="online-dot"></div>' : ''}
+    </div>
+  `).join('');
+}
+
+async function addFriend() {
+  const input = document.getElementById('friend-username-input');
+  const username = input.value.trim();
+  if (!username) return;
+  const res = await fetch(`${API}/api/friends/add`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ friendUsername: username })
+  });
+  const data = await res.json();
+  showToast(data.message || data.error, res.ok ? 'success' : 'error');
+  if (res.ok) { input.value = ''; loadFriends(); }
+}
+
+// ===== RANKS MODAL =====
+async function openRanksModal() {
+  const res = await fetch(`${API}/api/ranks`);
+  const ranks = await res.json();
+  const grid = document.getElementById('ranks-grid');
+  const rankOrder = ['vip', 'pro', 'max', 'ultimate'];
+  grid.innerHTML = rankOrder.map(key => {
+    const r = ranks[key];
+    return `
+      <div class="rank-card rank-${key}" onclick="buyRank('${key}')">
+        <span class="rank-icon">${key==='vip'?'⭐':key==='pro'?'💎':key==='max'?'🔥':'👑'}</span>
+        <div class="rank-name" style="color:${r.color}">${r.name}</div>
+        <div class="rank-price" style="color:${r.color}">${r.price.toLocaleString()} so'm/oy</div>
+        <ul class="rank-abilities">${r.abilities.map(a => `<li>${a}</li>`).join('')}</ul>
+        <button class="buy-btn" style="background:${r.color}20;color:${r.color};border:1px solid ${r.color}40">Sotib olish</button>
+      </div>
+    `;
+  }).join('');
+  openModal('ranks-modal');
+}
+
+async function buyRank(rank) {
+  const rankNames = { vip: '⭐ VIP', pro: '💎 PRO', max: '🔥 MAX', ultimate: '👑 ULTIMATE' };
+  const prices = { vip: '5,000', pro: '15,000', max: '35,000', ultimate: '75,000' };
+  if (!confirm(`${rankNames[rank]} rankini ${prices[rank]} so'mga sotib olmoqchimisiz?\n\nDiqqat: Hozircha demo rejimda - admin faollashtiradi`)) return;
+  
+  const res = await fetch(`${API}/api/buy-rank`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rank })
+  });
+  const data = await res.json();
+  if (res.ok) {
+    token = data.token;
+    localStorage.setItem('mafia_token', token);
+    currentUser = data.user;
+    updateUserPanel();
+    showToast(data.message, 'success');
+    closeModal('ranks-modal');
+  } else {
+    showToast(data.error, 'error');
+  }
+}
+
+// ===== UTILS =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${icons[type]}</span><span>${escHtml(message)}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+function getRankLabel(rank) {
+  const labels = { oddiy: '👤 Oddiy', vip: '⭐ VIP', pro: '💎 PRO', max: '🔥 MAX', ultimate: '👑 ULTIMATE' };
+  return labels[rank] || rank;
+}
+function getRankBadge(rank) {
+  const badges = { oddiy: '', vip: '⭐', pro: '💎', max: '🔥', ultimate: '👑' };
+  return badges[rank] || '';
+}
+function getRankColor(rank) {
+  const colors = { oddiy: '#9ca3af', vip: '#f59e0b', pro: '#3b82f6', max: '#ef4444', ultimate: '#8b5cf6' };
+  return colors[rank] || '#9ca3af';
+}
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
