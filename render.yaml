@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: mafia-game-uz
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        value: admin123
+      - key: PORT
+        value: 3000
