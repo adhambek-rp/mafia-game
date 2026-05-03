@@ -1,990 +1,2049 @@
+
+Copy
+
 <!DOCTYPE html>
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mafiya O'yini 🎮</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MAFIA — O'zbek O'yini</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #13131f;
-    --surface2: #1a1a2e;
-    --border: rgba(255,255,255,0.08);
-    --text: #e8e8f0;
-    --muted: #6b7280;
-    --accent: #c9a84c;
-    --accent2: #e8c76d;
-    --red: #ef4444;
-    --green: #22c55e;
-    --blue: #3b82f6;
-    --purple: #8b5cf6;
-    --gold: #f59e0b;
-    --rank-vip: #f59e0b;
-    --rank-pro: #3b82f6;
-    --rank-max: #ef4444;
-    --rank-ultimate: #8b5cf6;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Rubik', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-    background-image:
-      radial-gradient(ellipse at 20% 20%, rgba(201,168,76,0.06) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.06) 0%, transparent 50%);
-  }
-
-  /* ===== NAV ===== */
-  nav {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 32px;
-    background: rgba(10,10,15,0.9);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 100;
-  }
-  .logo { font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--accent); letter-spacing: 2px; }
-  .logo span { color: var(--text); font-size: 0.9rem; display: block; font-family: 'Rubik', sans-serif; letter-spacing: 0; font-weight: 300; }
-  .nav-right { display: flex; align-items: center; gap: 12px; }
-  .online-badge {
-    background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3);
-    color: #22c55e; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem;
-  }
-  .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-family: 'Rubik'; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; }
-  .btn-primary { background: var(--accent); color: #000; }
-  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
-  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
-  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-danger { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
-  .btn-danger:hover { background: rgba(239,68,68,0.25); }
-  .btn-green { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
-  .btn-green:hover { background: rgba(34,197,94,0.25); }
-  .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
-
-  /* ===== SCREENS ===== */
-  .screen { display: none; }
-  .screen.active { display: block; }
-
-  /* ===== AUTH SCREEN ===== */
-  #auth-screen {
-    min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-  }
-  .auth-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 20px; padding: 48px; width: 100%; max-width: 440px;
-    position: relative; overflow: hidden;
-  }
-  .auth-box::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, var(--accent), var(--purple), var(--accent));
-  }
-  .auth-title { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--accent); text-align: center; margin-bottom: 8px; }
-  .auth-subtitle { color: var(--muted); text-align: center; margin-bottom: 32px; font-size: 0.9rem; }
-  .auth-tabs { display: flex; gap: 4px; background: var(--bg); border-radius: 10px; padding: 4px; margin-bottom: 24px; }
-  .auth-tab { flex: 1; padding: 8px; border: none; background: transparent; color: var(--muted); cursor: pointer; border-radius: 8px; font-family: 'Rubik'; transition: all 0.2s; }
-  .auth-tab.active { background: var(--surface2); color: var(--text); }
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; color: var(--muted); font-size: 0.85rem; margin-bottom: 6px; }
-  .form-group input {
-    width: 100%; padding: 12px 16px; background: var(--bg); border: 1px solid var(--border);
-    border-radius: 10px; color: var(--text); font-family: 'Rubik'; font-size: 0.95rem; transition: border-color 0.2s;
-  }
-  .form-group input:focus { outline: none; border-color: var(--accent); }
-  .auth-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: var(--red); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; display: none; }
-  .auth-btn { width: 100%; padding: 14px; background: var(--accent); color: #000; border: none; border-radius: 10px; font-family: 'Rubik'; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; }
-  .auth-btn:hover { background: var(--accent2); transform: translateY(-2px); }
-
-  /* ===== LOBBY ===== */
-  #lobby-screen { padding: 24px 32px; }
-  .lobby-grid { display: grid; grid-template-columns: 280px 1fr 280px; gap: 24px; max-width: 1400px; margin: 0 auto; }
-  
-  .panel {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 16px; overflow: hidden;
-  }
-  .panel-header {
-    padding: 16px 20px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    background: rgba(255,255,255,0.02);
-  }
-  .panel-title { font-weight: 600; font-size: 0.9rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-  .panel-body { padding: 20px; }
-
-  /* User panel */
-  .user-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent); margin: 0 auto 16px; display: block; }
-  .user-name { text-align: center; font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
-  .rank-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;
-    margin: 0 auto 20px; display: flex; justify-content: center; width: fit-content;
-  }
-  .rank-oddiy { background: rgba(156,163,175,0.15); color: #9ca3af; border: 1px solid rgba(156,163,175,0.3); }
-  .rank-vip { background: rgba(245,158,11,0.15); color: var(--rank-vip); border: 1px solid rgba(245,158,11,0.3); }
-  .rank-pro { background: rgba(59,130,246,0.15); color: var(--rank-pro); border: 1px solid rgba(59,130,246,0.3); }
-  .rank-max { background: rgba(239,68,68,0.15); color: var(--rank-max); border: 1px solid rgba(239,68,68,0.3); }
-  .rank-ultimate { background: rgba(139,92,246,0.15); color: var(--rank-ultimate); border: 1px solid rgba(139,92,246,0.3); }
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
-  .stat-item { text-align: center; background: var(--bg); border-radius: 10px; padding: 12px 8px; }
-  .stat-value { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
-  .stat-label { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
-
-  /* Rooms panel */
-  .rooms-list { display: flex; flex-direction: column; gap: 10px; max-height: 500px; overflow-y: auto; }
-  .room-card {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .room-card:hover { border-color: var(--accent); background: rgba(201,168,76,0.05); }
-  .room-info .room-name { font-weight: 600; font-size: 0.95rem; }
-  .room-info .room-meta { color: var(--muted); font-size: 0.8rem; margin-top: 4px; }
-  .room-players { text-align: right; }
-  .room-players .count { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
-  .room-players .max { color: var(--muted); font-size: 0.8rem; }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-  .status-waiting { background: var(--green); }
-  .status-playing { background: var(--red); }
-  .create-room-btn { width: 100%; margin-top: 12px; }
-
-  /* Friends panel */
-  .friends-list { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
-  .friend-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg); border-radius: 10px; }
-  .friend-avatar { width: 36px; height: 36px; border-radius: 50%; }
-  .friend-name { font-size: 0.9rem; font-weight: 500; }
-  .friend-status { font-size: 0.75rem; color: var(--muted); }
-  .online-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-left: auto; box-shadow: 0 0 6px var(--green); }
-  .add-friend-form { display: flex; gap: 8px; margin-top: 12px; }
-  .add-friend-form input { flex: 1; padding: 8px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Rubik'; }
-
-  /* ===== RANKS MODAL ===== */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-    z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;
-    display: none;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; }
-  .modal-header { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .modal-header h2 { font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--accent); }
-  .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.5rem; }
-  .modal-body { padding: 32px; }
-  .ranks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
-  .rank-card {
-    background: var(--bg); border: 2px solid var(--border);
-    border-radius: 16px; padding: 24px 16px; text-align: center; cursor: pointer;
-    transition: all 0.3s; position: relative; overflow: hidden;
-  }
-  .rank-card:hover { transform: translateY(-4px); }
-  .rank-card.rank-vip:hover { border-color: var(--rank-vip); box-shadow: 0 8px 32px rgba(245,158,11,0.2); }
-  .rank-card.rank-pro:hover { border-color: var(--rank-pro); box-shadow: 0 8px 32px rgba(59,130,246,0.2); }
-  .rank-card.rank-max:hover { border-color: var(--rank-max); box-shadow: 0 8px 32px rgba(239,68,68,0.2); }
-  .rank-card.rank-ultimate:hover { border-color: var(--rank-ultimate); box-shadow: 0 8px 32px rgba(139,92,246,0.2); }
-  .rank-icon { font-size: 3rem; margin-bottom: 12px; display: block; }
-  .rank-name { font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
-  .rank-price { font-size: 1.2rem; font-weight: 700; margin: 12px 0; }
-  .rank-abilities { list-style: none; text-align: left; font-size: 0.78rem; color: var(--muted); }
-  .rank-abilities li { padding: 4px 0; }
-  .rank-abilities li::before { content: '✓ '; color: var(--green); }
-  .buy-btn { width: 100%; margin-top: 16px; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-family: 'Rubik'; transition: all 0.2s; }
-
-  /* ===== ROOM SCREEN ===== */
-  #room-screen { padding: 24px; }
-  .room-layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; max-width: 1200px; margin: 0 auto; }
-  .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; margin-bottom: 20px; }
-  .player-card {
-    background: var(--surface); border: 2px solid var(--border);
-    border-radius: 14px; padding: 20px 12px; text-align: center; position: relative; transition: all 0.3s;
-  }
-  .player-card.host { border-color: var(--accent); }
-  .player-card.dead { opacity: 0.4; filter: grayscale(1); }
-  .player-card.voted { border-color: var(--red); }
-  .player-card.selectable { cursor: pointer; }
-  .player-card.selectable:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .player-avatar { width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 10px; display: block; }
-  .player-name { font-size: 0.85rem; font-weight: 600; word-break: break-all; }
-  .player-badge { font-size: 0.7rem; margin-top: 4px; }
-  .host-crown { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 1.2rem; }
-  .ready-indicator { position: absolute; top: 8px; right: 8px; width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
-  .ready-indicator.ready { background: var(--green); box-shadow: 0 0 8px var(--green); }
-  .dead-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
-
-  /* Game phase banner */
-  .phase-banner {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 14px; padding: 20px; margin-bottom: 20px; text-align: center;
-  }
-  .phase-banner h2 { font-family: 'Cinzel', serif; font-size: 1.3rem; margin-bottom: 8px; }
-  .phase-timer { font-size: 2rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
-
-  /* Room chat */
-  .chat-panel { display: flex; flex-direction: column; height: 600px; }
-  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
-  .chat-msg { font-size: 0.85rem; line-height: 1.5; }
-  .chat-msg .from { font-weight: 600; }
-  .chat-msg.system { color: var(--accent); font-style: italic; }
-  .chat-msg.mafia-msg { color: #ff6b6b; }
-  .chat-input-row { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); }
-  .chat-input { flex: 1; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Rubik'; }
-
-  /* Role card */
-  .role-card {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 14px; padding: 20px; text-align: center; margin-bottom: 16px;
-  }
-  .role-icon { font-size: 3rem; }
-  .role-name { font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--accent); margin: 8px 0; }
-  .role-desc { font-size: 0.85rem; color: var(--muted); }
-  .role-teammates { margin-top: 12px; font-size: 0.8rem; color: #ff6b6b; }
-
-  /* ===== GAME OVER ===== */
-  .gameover-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
-    z-index: 500; display: flex; align-items: center; justify-content: center;
-    display: none; animation: fadeIn 0.5s ease;
-  }
-  .gameover-overlay.show { display: flex; }
-  .gameover-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 24px; padding: 48px; text-align: center; max-width: 500px;
-  }
-  .gameover-emoji { font-size: 5rem; display: block; margin-bottom: 16px; animation: bounce 1s infinite; }
-  .gameover-title { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--accent); margin-bottom: 8px; }
-  .winners-list { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0; }
-  .winner-chip { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: var(--green); padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; }
-
-  /* ===== TOAST ===== */
-  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-  .toast {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 14px 20px; min-width: 280px;
-    animation: slideIn 0.3s ease; font-size: 0.9rem;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .toast.success { border-color: rgba(34,197,94,0.5); }
-  .toast.error { border-color: rgba(239,68,68,0.5); }
-  .toast.info { border-color: rgba(59,130,246,0.5); }
-
-  /* ===== CREATE ROOM MODAL ===== */
-  .create-room-form { display: flex; flex-direction: column; gap: 16px; }
-
-  /* ===== SCROLLBAR ===== */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-  @keyframes slideIn { from { transform: translateX(100%); opacity: 0 } to { transform: translateX(0); opacity: 1 } }
-  @keyframes bounce { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-20px) } }
-  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.5 } }
-
-  .loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); }
-  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 12px; }
-  @keyframes spin { to { transform: rotate(360deg) } }
-
-  .hero-text { text-align: center; padding: 20px; margin-bottom: 4px; }
-  .hero-text h1 { font-family: 'Cinzel', serif; font-size: 2.5rem; color: var(--accent); }
-  .hero-text p { color: var(--muted); margin-top: 8px; }
-
-  @media (max-width: 900px) {
-    .lobby-grid { grid-template-columns: 1fr; }
-    .room-layout { grid-template-columns: 1fr; }
-    nav { padding: 12px 16px; }
-    .logo { font-size: 1.1rem; }
-  }
+/* ═══════════════════════════════════════════════
+   ROOT VARIABLES
+═══════════════════════════════════════════════ */
+:root {
+  --bg:       #060612;
+  --bg2:      #0b0b1a;
+  --s1:       #0f0f22;
+  --s2:       #151530;
+  --s3:       #1c1c3a;
+  --s4:       #242448;
+ 
+  --border:   rgba(255,255,255,0.06);
+  --border2:  rgba(255,255,255,0.12);
+  --border3:  rgba(255,255,255,0.2);
+ 
+  --text:     #eeeef8;
+  --text2:    #b8b8d0;
+  --muted:    #6b6b90;
+ 
+  --gold:     #d4a843;
+  --gold2:    #f0c96a;
+  --gold3:    #a07830;
+ 
+  --vip:      #f59e0b;
+  --pro:      #3b82f6;
+  --max:      #ef4444;
+  --ult:      #a855f7;
+ 
+  --green:    #22c55e;
+  --red:      #ef4444;
+  --blue:     #3b82f6;
+  --purple:   #a855f7;
+ 
+  --glow-gold: rgba(212,168,67,0.25);
+  --glow-red:  rgba(239,68,68,0.25);
+ 
+  --r:        14px;
+  --r-sm:     10px;
+  --r-lg:     20px;
+  --r-xl:     28px;
+ 
+  --nav-h:    58px;
+  --bot-h:    64px;
+  --trans:    cubic-bezier(0.4, 0, 0.2, 1);
+}
+ 
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { height:100%; overscroll-behavior:none; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  inset: 0;
+}
+img { display:block; object-fit:cover; }
+input, button { font-family: 'Nunito', sans-serif; }
+button { cursor:pointer; }
+ 
+/* ═══════════════════════════════════════════════
+   BACKGROUND ATMOSPHERE
+═══════════════════════════════════════════════ */
+body::before {
+  content:'';
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 10%, rgba(212,168,67,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 90%, rgba(168,85,247,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(59,130,246,0.03) 0%, transparent 60%);
+}
+ 
+/* ═══════════════════════════════════════════════
+   LAYOUT SHELL
+═══════════════════════════════════════════════ */
+#topbar {
+  height: var(--nav-h);
+  background: rgba(6,6,18,0.96);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 100;
+}
+#topbar.gone { display:none; }
+ 
+#app-body {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+ 
+#bottomnav {
+  height: var(--bot-h);
+  background: rgba(6,6,18,0.97);
+  backdrop-filter: blur(24px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+#bottomnav.gone { display:none; }
+ 
+/* ═══════════════════════════════════════════════
+   TOPBAR ELEMENTS
+═══════════════════════════════════════════════ */
+.tb-logo {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.tb-logo small {
+  font-family: 'Nunito', sans-serif;
+  font-size: .58rem;
+  color: var(--muted);
+  display: block;
+  letter-spacing: 1px;
+  -webkit-text-fill-color: var(--muted);
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+.tb-right { display:flex; align-items:center; gap:8px; }
+.online-chip {
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.2);
+  color: var(--green);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: .7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.o-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
+.notif-btn {
+  width:36px; height:36px;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .95rem;
+  position: relative;
+  cursor: pointer;
+  transition: all .2s;
+  color: var(--text2);
+}
+.notif-btn:hover { border-color:var(--gold); color:var(--gold); }
+.n-count {
+  position:absolute; top:-4px; right:-4px;
+  background:var(--red); color:#fff;
+  font-size:.58rem; font-weight:800;
+  padding:1px 4px; border-radius:8px;
+  min-width:16px; text-align:center;
+  display:none;
+}
+ 
+/* ═══════════════════════════════════════════════
+   BOTTOM NAV
+═══════════════════════════════════════════════ */
+.bn-item {
+  flex:1;
+  display:flex; flex-direction:column; align-items:center;
+  gap:3px; padding:8px 0;
+  border:none; background:transparent;
+  color: var(--muted);
+  transition: all .25s var(--trans);
+  position:relative;
+  max-width:80px;
+}
+.bn-item.active { color:var(--gold); }
+.bn-item.active .bn-icon::after {
+  content:'';
+  position:absolute; bottom:-4px; left:50%; transform:translateX(-50%);
+  width:4px; height:4px; border-radius:50%;
+  background: var(--gold);
+}
+.bn-icon { font-size:1.25rem; line-height:1; position:relative; }
+.bn-label { font-size:.58rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+.bn-badge {
+  position:absolute; top:4px; right:10px;
+  background:var(--red); color:#fff;
+  font-size:.55rem; font-weight:800;
+  padding:1px 4px; border-radius:8px;
+  display:none;
+}
+ 
+/* ═══════════════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════════════ */
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: none;
+  -webkit-overflow-scrolling: touch;
+}
+.screen.active { display:block; }
+#auth-screen.active { display:flex; align-items:flex-start; justify-content:center; }
+#messages-screen.active { display:flex; flex-direction:column; }
+ 
+/* ═══════════════════════════════════════════════
+   SHARED COMPONENTS
+═══════════════════════════════════════════════ */
+ 
+/* Buttons */
+.btn {
+  padding: 10px 20px;
+  border-radius: var(--r-sm);
+  border: none;
+  font-weight: 700;
+  font-size: .88rem;
+  transition: all .2s var(--trans);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  letter-spacing: .2px;
+}
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color: #000;
+  box-shadow: 0 4px 16px rgba(212,168,67,0.3);
+}
+.btn-gold:active { transform:scale(.97); box-shadow:none; }
+.btn-outline { background:transparent; color:var(--text); border:1px solid var(--border2); }
+.btn-outline:active { background:var(--s2); }
+.btn-ghost { background:transparent; color:var(--muted); border:none; }
+.btn-red { background:rgba(239,68,68,.15); color:var(--red); border:1px solid rgba(239,68,68,.25); }
+.btn-red:active { background:rgba(239,68,68,.25); }
+.btn-green { background:rgba(34,197,94,.15); color:var(--green); border:1px solid rgba(34,197,94,.25); }
+.btn-green:active { background:rgba(34,197,94,.25); }
+.btn-blue { background:rgba(59,130,246,.15); color:var(--blue); border:1px solid rgba(59,130,246,.25); }
+.btn-blue:active { background:rgba(59,130,246,.25); }
+.btn-full { width:100%; }
+.btn-sm { padding:7px 14px; font-size:.78rem; }
+.btn-xs { padding:5px 10px; font-size:.7rem; border-radius:8px; }
+.btn-lg { padding:14px 24px; font-size:.95rem; }
+ 
+/* Input */
+.inp {
+  width:100%;
+  padding:12px 16px;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-size: .9rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 500;
+  transition: border-color .2s;
+  outline: none;
+  -webkit-appearance: none;
+}
+.inp:focus { border-color: var(--gold); }
+.inp::placeholder { color: var(--muted); font-weight: 400; }
+.form-g { margin-bottom:14px; }
+.form-g label { display:block; font-size:.75rem; font-weight:700; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px; }
+ 
+/* Card */
+.card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.card-hd {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items:center; justify-content:space-between;
+}
+.card-title { font-size:.7rem; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+.card-bd { padding:14px 16px; }
+ 
+/* Rank Badges */
+.rb {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 9px; border-radius:20px;
+  font-size:.68rem; font-weight:800;
+  letter-spacing:.3px;
+}
+.rb-oddiy  { background:rgba(156,163,175,.12); color:#8e8ea8; border:1px solid rgba(156,163,175,.2); }
+.rb-vip    { background:rgba(245,158,11,.12);  color:var(--vip);  border:1px solid rgba(245,158,11,.25); }
+.rb-pro    { background:rgba(59,130,246,.12);  color:var(--pro);  border:1px solid rgba(59,130,246,.25); }
+.rb-max    { background:rgba(239,68,68,.12);   color:var(--max);  border:1px solid rgba(239,68,68,.25); }
+.rb-ultimate{ background:rgba(168,85,247,.12); color:var(--ult);  border:1px solid rgba(168,85,247,.25); }
+ 
+/* Avatar */
+.av { border-radius:50%; object-fit:cover; }
+.av-border { border:2px solid var(--gold); }
+ 
+/* Section divider */
+.section-title {
+  font-family:'Cinzel', serif;
+  font-size:.75rem; font-weight:700;
+  color:var(--muted); text-transform:uppercase;
+  letter-spacing:2px;
+  margin-bottom:12px;
+  display:flex; align-items:center; gap:8px;
+}
+.section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+ 
+/* Scrollbar */
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,.08); border-radius:2px; }
+ 
+/* ═══════════════════════════════════════════════
+   AUTH SCREEN
+═══════════════════════════════════════════════ */
+#auth-screen {
+  padding: 20px 16px 40px;
+  min-height:100%;
+}
+.auth-wrap { width:100%; max-width:420px; margin-top:16px; }
+ 
+.auth-brand {
+  text-align:center;
+  margin-bottom:28px;
+  animation: fadeDown .6s var(--trans) both;
+}
+.auth-brand-logo {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 3rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--gold3), var(--gold), var(--gold2), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  filter: drop-shadow(0 0 30px rgba(212,168,67,0.4));
+  margin-bottom:8px;
+}
+.auth-brand-sub {
+  font-size:.82rem; color:var(--muted); font-weight:500;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.auth-brand-sub span { color:var(--text2); }
+ 
+.auth-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 24px 20px;
+  animation: fadeUp .5s .1s var(--trans) both;
+  position:relative; overflow:hidden;
+}
+.auth-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+ 
+.auth-tabs {
+  display:flex; background:var(--bg2); border-radius:10px; padding:3px;
+  margin-bottom:22px;
+}
+.auth-tab {
+  flex:1; padding:9px; border:none; background:transparent;
+  color:var(--muted); border-radius:8px;
+  font-weight:700; font-size:.82rem; letter-spacing:.3px;
+  transition:all .2s;
+}
+.auth-tab.active {
+  background: var(--s3);
+  color: var(--text);
+}
+ 
+.auth-err {
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.25);
+  color: var(--red);
+  padding:10px 14px; border-radius:8px;
+  font-size:.8rem; font-weight:600;
+  margin-bottom:14px; display:none;
+}
+ 
+.gender-pick { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.gender-opt {
+  padding:14px 8px; border:2px solid var(--border);
+  border-radius:12px; text-align:center;
+  cursor:pointer; transition:all .2s;
+}
+.gender-opt.active { border-color:var(--gold); background:rgba(212,168,67,.08); }
+.gender-opt-icon { font-size:1.8rem; display:block; margin-bottom:5px; }
+.gender-opt-label { font-size:.8rem; font-weight:700; color:var(--text2); }
+ 
+.auth-submit {
+  width:100%; padding:14px; margin-top:6px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color:#000; border:none; border-radius:var(--r-sm);
+  font-weight:800; font-size:1rem;
+  letter-spacing:.5px;
+  box-shadow: 0 6px 24px rgba(212,168,67,0.35);
+  transition:all .2s;
+}
+.auth-submit:active { transform:scale(.98); box-shadow:none; }
+ 
+.auth-features {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:8px; margin-top:20px;
+}
+.auth-feat {
+  background:var(--s2); border:1px solid var(--border);
+  border-radius:10px; padding:10px;
+  font-size:.72rem; font-weight:600; color:var(--text2);
+  display:flex; align-items:center; gap:6px;
+}
+.auth-feat-icon { font-size:1rem; }
+ 
+/* ═══════════════════════════════════════════════
+   LOBBY SCREEN
+═══════════════════════════════════════════════ */
+#lobby-screen { padding:12px 14px; }
+ 
+/* User strip */
+.user-strip {
+  display:flex; align-items:center; gap:12px;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius:var(--r);
+  padding:12px;
+  margin-bottom:12px;
+  position:relative; overflow:hidden;
+}
+.user-strip::before {
+  content:'';
+  position:absolute; left:0; top:0; bottom:0; width:3px;
+  background: linear-gradient(to bottom, var(--gold), var(--gold3));
+}
+.us-av { width:50px; height:50px; }
+.us-info { flex:1; min-width:0; }
+.us-name { font-size:1rem; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.us-id { font-size:.65rem; color:var(--muted); font-weight:600; font-family:monospace; margin:2px 0; }
+.us-stats { display:flex; gap:12px; margin-top:4px; }
+.us-stat { font-size:.7rem; color:var(--muted); font-weight:600; }
+.us-stat b { color:var(--gold); }
+.us-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+ 
+/* Rooms section */
+.rooms-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+ 
+.room-card {
+  background:var(--s1); border:1px solid var(--border);
+  border-radius:var(--r-sm); padding:14px;
+  display:flex; align-items:center; gap:12px;
+  cursor:pointer; transition:all .22s var(--trans);
+  margin-bottom:8px; position:relative; overflow:hidden;
+}
+.room-card::after {
+  content:'';
+  position:absolute; inset:0; background:rgba(212,168,67,0.04);
+  opacity:0; transition:opacity .2s;
+}
+.room-card:active { border-color:var(--gold); transform:scale(.99); }
+.room-card:active::after { opacity:1; }
+.room-av {
+  width:44px; height:44px; border-radius:12px;
+  background: var(--s3);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.3rem; flex-shrink:0;
+}
+.room-info { flex:1; min-width:0; }
+.room-name { font-size:.9rem; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.room-meta {
+  display:flex; align-items:center; gap:6px;
+  font-size:.7rem; color:var(--muted); font-weight:600; margin-top:3px;
+}
+.status-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.sd-wait { background:var(--green); }
+.sd-play { background:var(--red); animation:pulse 1.5s infinite; }
+.room-right { text-align:right; flex-shrink:0; }
+.room-count { font-size:1.4rem; font-weight:900; color:var(--gold); line-height:1; }
+.room-max { font-size:.65rem; color:var(--muted); font-weight:700; }
+.room-locked { color:var(--muted); font-size:.85rem; }
+ 
+.no-rooms {
+  text-align:center; padding:40px 20px;
+  color:var(--muted); font-size:.85rem; line-height:2;
+}
+.no-rooms-icon { font-size:2.5rem; margin-bottom:10px; opacity:.4; }
+ 
+/* Friends mini */
+.friends-mini-list { display:flex; flex-direction:column; gap:6px; }
+.fml-item { display:flex; align-items:center; gap:8px; padding:6px 0; }
+.fml-av { width:32px; height:32px; flex-shrink:0; }
+.fml-name { font-size:.8rem; font-weight:700; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fml-online { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); flex-shrink:0; }
+ 
+/* ═══════════════════════════════════════════════
+   FRIENDS SCREEN
+═══════════════════════════════════════════════ */
+#friends-screen { padding:14px; }
+ 
+.fr-tabs {
+  display:flex; background:var(--bg2); border-radius:10px; padding:3px;
+  margin-bottom:14px;
+}
+.fr-tab {
+  flex:1; padding:8px; border:none; background:transparent;
+  color:var(--muted); border-radius:8px;
+  font-weight:700; font-size:.74rem; letter-spacing:.3px;
+  transition:all .2s; position:relative;
+  text-transform:uppercase;
+}
+.fr-tab.active { background:var(--s3); color:var(--text); }
+.fr-tab-badge {
+  position:absolute; top:2px; right:2px;
+  background:var(--red); color:#fff;
+  font-size:.55rem; font-weight:800;
+  padding:1px 4px; border-radius:6px;
+  display:none;
+}
+ 
+.fr-item {
+  display:flex; align-items:center; gap:10px;
+  padding:12px; background:var(--s1);
+  border:1px solid var(--border); border-radius:var(--r-sm);
+  margin-bottom:7px;
+}
+.fri-av { width:44px; height:44px; flex-shrink:0; }
+.fri-info { flex:1; min-width:0; }
+.fri-name { font-size:.88rem; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fri-sub { font-size:.68rem; color:var(--muted); font-weight:600; margin-top:3px; display:flex; align-items:center; gap:6px; }
+.fri-online { width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 5px var(--green); }
+.fri-btns { display:flex; gap:5px; flex-shrink:0; }
+ 
+/* Friend request card */
+.req-card {
+  background:var(--s1); border:1px solid var(--border2);
+  border-radius:var(--r); padding:14px; margin-bottom:10px;
+  position:relative; overflow:hidden;
+}
+.req-card::before {
+  content:'';
+  position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:var(--gold);
+}
+.req-top { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.req-av { width:44px; height:44px; flex-shrink:0; }
+.req-name { font-size:.9rem; font-weight:800; }
+.req-msg { font-size:.78rem; color:var(--muted); margin-bottom:12px; line-height:1.6; }
+.req-btns { display:flex; gap:8px; }
+.req-btns .btn { flex:1; }
+ 
+/* Search result */
+.search-card {
+  background:var(--s1); border:1px solid var(--border);
+  border-radius:var(--r-sm); padding:12px;
+  display:flex; align-items:center; gap:10px; margin-top:10px;
+}
+ 
+/* ═══════════════════════════════════════════════
+   MESSAGES SCREEN
+═══════════════════════════════════════════════ */
+#messages-screen { }
+.conv-wrap { flex:1; overflow-y:auto; padding:12px 14px; }
+.conv-item {
+  display:flex; align-items:center; gap:10px;
+  padding:11px 12px; border-radius:var(--r-sm);
+  cursor:pointer; transition:all .2s; margin-bottom:4px;
+  position:relative;
+}
+.conv-item:active,.conv-item.act { background:var(--s2); }
+.conv-av { width:46px; height:46px; flex-shrink:0; }
+.conv-info { flex:1; min-width:0; }
+.conv-name { font-size:.9rem; font-weight:800; }
+.conv-last { font-size:.72rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; font-weight:500; }
+.conv-meta { flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+.conv-unread {
+  background:var(--red); color:#fff;
+  font-size:.62rem; font-weight:800;
+  padding:2px 6px; border-radius:10px;
+}
+.conv-online { width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); }
+ 
+/* Chat view */
+#chat-view {
+  position:absolute; inset:0;
+  background:var(--bg);
+  z-index:60;
+  display:none;
+  flex-direction:column;
+}
+#chat-view.open { display:flex; }
+.chat-tb {
+  height:var(--nav-h); flex-shrink:0;
+  background:rgba(6,6,18,.96);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:12px; padding:0 14px;
+}
+.chat-back { background:none; border:none; color:var(--gold); font-size:1.3rem; padding:6px; margin-left:-6px; }
+.chat-tb-av { width:36px; height:36px; flex-shrink:0; }
+.chat-tb-name { font-size:.9rem; font-weight:800; }
+.chat-tb-status { font-size:.68rem; color:var(--muted); font-weight:600; margin-top:1px; }
+.chat-msgs {
+  flex:1; overflow-y:auto; padding:14px;
+  display:flex; flex-direction:column; gap:10px;
+}
+.msg-row { display:flex; align-items:flex-end; gap:7px; }
+.msg-row.mine { flex-direction:row-reverse; }
+.msg-sm-av { width:28px; height:28px; flex-shrink:0; }
+.msg-bub {
+  max-width:72%; padding:10px 14px;
+  border-radius:16px; font-size:.85rem; line-height:1.55;
+  font-weight:500;
+}
+.msg-row.mine .msg-bub {
+  background:rgba(212,168,67,.18);
+  border:1px solid rgba(212,168,67,.25);
+  border-bottom-right-radius:4px;
+}
+.msg-row.theirs .msg-bub {
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-bottom-left-radius:4px;
+}
+.msg-time { font-size:.62rem; color:var(--muted); margin-top:3px; }
+.msg-row.mine .msg-time { text-align:right; }
+.chat-in-row {
+  display:flex; gap:8px; padding:10px 12px;
+  border-top:1px solid var(--border);
+  background:var(--s1); flex-shrink:0;
+  padding-bottom:env(safe-area-inset-bottom, 10px);
+}
+.chat-in-row .inp { background:var(--bg2); }
+.empty-conv {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  flex:1; padding:40px 20px; text-align:center;
+  color:var(--muted);
+}
+.empty-conv-icon { font-size:3rem; opacity:.3; margin-bottom:12px; }
+.empty-conv p { font-size:.82rem; line-height:1.8; }
+ 
+/* ═══════════════════════════════════════════════
+   PROFILE SCREEN
+═══════════════════════════════════════════════ */
+#profile-screen { padding:14px; }
+ 
+.profile-hero {
+  background: var(--s1);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:28px 20px 20px;
+  text-align:center; margin-bottom:12px;
+  position:relative; overflow:hidden;
+}
+.profile-hero::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:80px;
+  background:linear-gradient(135deg, rgba(212,168,67,.15), rgba(168,85,247,.1));
+  pointer-events:none;
+}
+.prof-av-wrap { position:relative; width:84px; height:84px; margin:0 auto 14px; }
+.prof-av { width:84px; height:84px; border:3px solid var(--gold); box-shadow:0 0 24px rgba(212,168,67,0.25); }
+.prof-av-edit {
+  position:absolute; bottom:0; right:0;
+  width:26px; height:26px;
+  background:var(--gold); border-radius:50%; border:2px solid var(--bg);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.7rem; cursor:pointer;
+}
+.prof-name { font-size:1.3rem; font-weight:900; }
+.prof-id {
+  font-size:.65rem; color:var(--muted); font-weight:700;
+  font-family:monospace; margin:4px 0 10px;
+  background:var(--s2); display:inline-block;
+  padding:2px 10px; border-radius:20px;
+}
+.prof-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:16px 0 0; }
+.ps { background:var(--bg2); border-radius:10px; padding:12px 6px; text-align:center; }
+.ps-v { font-size:1.25rem; font-weight:900; color:var(--gold); }
+.ps-l { font-size:.62rem; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.5px; margin-top:2px; }
+ 
+.rank-hero-card {
+  background:var(--s1); border:1px solid var(--border);
+  border-radius:var(--r); padding:20px; text-align:center; margin-bottom:12px;
+}
+.rank-big-icon { font-size:3rem; margin-bottom:8px; }
+.rank-big-name { font-family:'Cinzel', serif; font-size:1.4rem; color:var(--gold); margin-bottom:4px; }
+.rank-expiry { font-size:.72rem; color:var(--muted); font-weight:600; }
+ 
+.gender-cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.gc {
+  padding:16px 10px; border:2px solid var(--border);
+  border-radius:var(--r-sm); text-align:center;
+  cursor:pointer; transition:all .2s;
+}
+.gc.active { border-color:var(--gold); background:rgba(212,168,67,.08); }
+.gc-icon { font-size:2rem; margin-bottom:6px; }
+.gc-label { font-size:.82rem; font-weight:800; color:var(--text2); }
+.gc-sub { font-size:.65rem; color:var(--muted); margin-top:2px; }
+ 
+/* ═══════════════════════════════════════════════
+   ROOM SCREEN
+═══════════════════════════════════════════════ */
+#room-screen { padding:12px; padding-bottom:20px; }
+ 
+.phase-banner {
+  background: var(--s2);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:18px; text-align:center; margin-bottom:12px;
+  display:none;
+}
+.phase-banner.show { display:block; }
+.phase-title { font-family:'Cinzel', serif; font-size:1rem; color:var(--text2); margin-bottom:4px; }
+.phase-timer { font-size:2.8rem; font-weight:900; color:var(--gold); font-variant-numeric:tabular-nums; line-height:1; }
+ 
+.role-reveal {
+  background: linear-gradient(135deg, rgba(212,168,67,.08), rgba(168,85,247,.06));
+  border:1px solid rgba(212,168,67,.2);
+  border-radius:var(--r);
+  padding:16px; text-align:center; margin-bottom:12px;
+  display:none;
+}
+.role-reveal.show { display:block; }
+.rr-icon { font-size:2.4rem; margin-bottom:6px; }
+.rr-name { font-family:'Cinzel', serif; font-size:1rem; color:var(--gold); margin-bottom:3px; }
+.rr-desc { font-size:.78rem; color:var(--text2); font-weight:500; }
+.rr-mates { font-size:.76rem; color:#ff7b7b; font-weight:700; margin-top:6px; }
+ 
+.players-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); gap:8px; margin-bottom:12px; }
+.pc {
+  background:var(--s1); border:2px solid var(--border);
+  border-radius:12px; padding:11px 7px; text-align:center;
+  position:relative; transition:all .2s;
+}
+.pc.host { border-color:rgba(212,168,67,.5); }
+.pc.dead { opacity:.28; filter:grayscale(1); }
+.pc.selectable { cursor:pointer; }
+.pc.selectable:active { border-color:var(--gold); background:rgba(212,168,67,.06); transform:scale(.97); }
+.pc-crown { position:absolute; top:-9px; left:50%; transform:translateX(-50%); font-size:1rem; }
+.pc-ready { position:absolute; top:5px; right:5px; width:8px; height:8px; border-radius:50%; background:var(--s4); }
+.pc-ready.yes { background:var(--green); box-shadow:0 0 6px var(--green); }
+.pc-av { width:42px; height:42px; margin:0 auto 7px; }
+.pc-name { font-size:.68rem; font-weight:800; line-height:1.3; word-break:break-word; }
+.pc-rb { margin-top:4px; }
+.pc-me { font-size:.6rem; color:var(--gold); font-weight:800; margin-top:2px; }
+.pc-dead-icon { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:1.8rem; background:rgba(0,0,0,.45); border-radius:10px; }
+ 
+.room-btns { display:flex; gap:8px; margin-bottom:12px; }
+ 
+/* Room Chat */
+.room-chat {
+  background:var(--s1); border:1px solid var(--border);
+  border-radius:var(--r); overflow:hidden;
+}
+.rc-msgs {
+  height:190px; overflow-y:auto; padding:12px;
+  display:flex; flex-direction:column; gap:4px;
+}
+.rcm { font-size:.78rem; line-height:1.5; font-weight:500; }
+.rcm .fn { font-weight:800; }
+.rcm.sys { color:var(--gold); font-style:italic; text-align:center; padding:3px 0; font-size:.74rem; }
+.rcm.maf { color:#ff7b7b; }
+.rc-in { display:flex; gap:6px; padding:8px; border-top:1px solid var(--border); }
+.rc-in input {
+  flex:1; padding:9px 12px;
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; color:var(--text);
+  font-family:'Nunito'; font-size:.82rem; font-weight:500;
+  outline:none;
+}
+.rc-in input:focus { border-color:var(--gold); }
+ 
+/* ═══════════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════════ */
+.ovl {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.88);
+  backdrop-filter:blur(10px);
+  z-index:200;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  padding:0;
+}
+.ovl.open { display:flex; }
+@media(min-width:600px) { .ovl { align-items:center; padding:20px; } }
+ 
+.modal {
+  background:var(--s1);
+  border:1px solid var(--border2);
+  border-top-left-radius:24px;
+  border-top-right-radius:24px;
+  width:100%; max-width:500px;
+  max-height:90vh;
+  overflow-y:auto;
+  padding-bottom:env(safe-area-inset-bottom, 0);
+  position:relative;
+}
+.modal::before { content:''; display:block; width:40px; height:4px; background:var(--s4); border-radius:2px; margin:10px auto 0; }
+@media(min-width:600px) { .modal { border-radius:24px; } .modal::before { display:none; } }
+ 
+.modal-hd {
+  padding:18px 20px 14px;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; background:var(--s1); z-index:1;
+}
+.modal-hd h3 { font-family:'Cinzel', serif; font-size:1rem; color:var(--gold); }
+.modal-x { background:none; border:none; color:var(--muted); font-size:1.3rem; width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:8px; transition:all .2s; }
+.modal-x:hover { background:var(--s2); color:var(--text); }
+.modal-bd { padding:18px 20px; }
+ 
+/* Ranks cards in modal */
+.rank-modal-card {
+  background:var(--bg2); border:1.5px solid var(--border);
+  border-radius:14px; padding:16px;
+  display:flex; gap:14px;
+  margin-bottom:10px; transition:all .2s;
+}
+.rmc-icon { font-size:2.2rem; flex-shrink:0; margin-top:2px; }
+.rmc-info { flex:1; }
+.rmc-name { font-family:'Cinzel', serif; font-size:.95rem; font-weight:700; margin-bottom:2px; }
+.rmc-price { font-size:.82rem; font-weight:800; margin-bottom:6px; }
+.rmc-abilities { font-size:.7rem; color:var(--muted); line-height:1.9; }
+.rmc-abilities li { list-style:none; }
+.rmc-abilities li::before { content:'✓ '; color:var(--green); font-weight:800; }
+ 
+/* ═══════════════════════════════════════════════
+   NOTIFICATION PANEL
+═══════════════════════════════════════════════ */
+.np {
+  position:fixed; top:calc(var(--nav-h) + 6px); right:12px;
+  width:min(340px, calc(100vw - 24px));
+  background:var(--s1); border:1px solid var(--border2);
+  border-radius:16px; z-index:300;
+  display:none; flex-direction:column;
+  box-shadow: 0 24px 60px rgba(0,0,0,.6);
+  max-height:75vh; overflow:hidden;
+}
+.np.open { display:flex; }
+.np-hd {
+  padding:12px 16px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  flex-shrink:0;
+}
+.np-hd h4 { font-size:.82rem; font-weight:800; }
+.np-list { overflow-y:auto; flex:1; }
+.np-item {
+  display:flex; gap:10px; padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,.03);
+  cursor:pointer; transition:background .2s;
+}
+.np-item.unread { background:rgba(212,168,67,.04); }
+.np-icon { font-size:1.2rem; flex-shrink:0; }
+.np-body { flex:1; min-width:0; }
+.np-text { font-size:.78rem; line-height:1.5; font-weight:600; }
+.np-time { font-size:.65rem; color:var(--muted); margin-top:3px; }
+.np-fr-btns { display:flex; gap:6px; margin-top:8px; }
+.np-empty { padding:30px; text-align:center; color:var(--muted); font-size:.82rem; }
+ 
+/* ═══════════════════════════════════════════════
+   GAME OVER
+═══════════════════════════════════════════════ */
+.go-ovl {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.97);
+  backdrop-filter:blur(16px);
+  z-index:500;
+  display:none;
+  align-items:center; justify-content:center;
+  padding:20px;
+}
+.go-ovl.show { display:flex; }
+.go-box {
+  background:var(--s1); border:1px solid var(--border2);
+  border-radius:24px; padding:32px 20px;
+  width:100%; max-width:420px;
+  text-align:center; overflow-y:auto; max-height:90vh;
+}
+.go-emoji { font-size:4.5rem; display:block; margin-bottom:14px; animation:bounce 1s ease infinite; }
+.go-title { font-family:'Cinzel Decorative', serif; font-size:1.4rem; color:var(--gold); margin-bottom:8px; }
+.go-result { font-size:.9rem; color:var(--text2); margin-bottom:16px; font-weight:600; }
+.win-row { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:14px; }
+.wchip { background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.25); color:var(--green); padding:4px 12px; border-radius:16px; font-size:.75rem; font-weight:800; }
+.roles-wrap { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:18px; }
+.role-chip { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:5px 10px; font-size:.7rem; text-align:center; }
+.role-chip span { color:var(--muted); display:block; }
+ 
+/* ═══════════════════════════════════════════════
+   NIGHT ACTION
+═══════════════════════════════════════════════ */
+.na-ovl {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.92);
+  backdrop-filter:blur(12px);
+  z-index:450;
+  display:none; align-items:flex-end; justify-content:center;
+}
+.na-ovl.show { display:flex; }
+.na-box {
+  background:var(--s1); border:1px solid var(--border2);
+  border-top-left-radius:24px; border-top-right-radius:24px;
+  padding:24px 16px 32px;
+  width:100%; max-width:500px;
+  padding-bottom:env(safe-area-inset-bottom, 24px);
+}
+.na-title { font-family:'Cinzel', serif; color:var(--gold); font-size:1rem; text-align:center; margin-bottom:4px; }
+.na-label { font-size:.8rem; color:var(--muted); text-align:center; margin-bottom:14px; font-weight:600; }
+.na-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:8px; max-height:35vh; overflow-y:auto; margin-bottom:14px; }
+.na-target {
+  background:var(--s2); border:1px solid var(--border);
+  border-radius:10px; padding:10px 6px; text-align:center;
+  cursor:pointer; transition:all .2s;
+}
+.na-target:active { border-color:var(--gold); background:rgba(212,168,67,.1); transform:scale(.96); }
+.na-t-av { width:38px; height:38px; margin:0 auto 6px; }
+.na-t-name { font-size:.7rem; font-weight:800; word-break:break-word; }
+ 
+/* ═══════════════════════════════════════════════
+   TOASTS
+═══════════════════════════════════════════════ */
+.toasts {
+  position:fixed; top:calc(var(--nav-h) + 10px);
+  left:50%; transform:translateX(-50%);
+  z-index:9999;
+  display:flex; flex-direction:column; gap:6px;
+  width:min(320px, calc(100vw - 28px));
+  pointer-events:none;
+}
+.toast {
+  background:var(--s2); border:1px solid var(--border2);
+  border-radius:12px; padding:11px 16px;
+  display:flex; align-items:center; gap:10px;
+  font-size:.8rem; font-weight:700;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  animation:fadeDown .25s ease both;
+}
+.toast.success { border-color:rgba(34,197,94,.35); }
+.toast.error { border-color:rgba(239,68,68,.35); }
+.toast.info { border-color:rgba(59,130,246,.35); }
+ 
+/* ═══════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════ */
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+@keyframes fadeDown { from{transform:translateY(-12px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes fadeUp { from{transform:translateY(16px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes spin { to{transform:rotate(360deg)} }
+@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+ 
+/* Loading skeleton */
+.skel { background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:8px; }
+ 
+/* ═══════════════════════════════════════════════
+   DESKTOP ENHANCEMENTS
+═══════════════════════════════════════════════ */
+@media(min-width:700px) {
+  #lobby-screen { padding:16px; }
+  .lobby-grid { display:grid; grid-template-columns:280px 1fr; gap:14px; }
+  .rc-msgs { height:260px; }
+  .players-grid { grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); }
+  #auth-screen { padding:40px 20px 60px; align-items:center; }
+  .auth-wrap { margin-top:0; }
+}
+@media(min-width:1000px) {
+  .lobby-grid { grid-template-columns:280px 1fr 260px; }
+}
 </style>
 </head>
 <body>
-
-<!-- NAVBAR -->
-<nav id="main-nav" style="display:none">
-  <div class="logo">🎭 MAF<span>O'zbek Mafiya O'yini</span></div>
-  <div class="nav-right">
-    <div class="online-badge">🟢 <span id="online-count">0</span> online</div>
-    <button class="btn btn-outline btn-sm" onclick="openRanksModal()">👑 Ranklar</button>
-    <button class="btn btn-outline btn-sm" id="nav-user">...</button>
-    <button class="btn btn-danger btn-sm" onclick="logout()">Chiqish</button>
+ 
+<!-- ═══════ TOP BAR ═══════ -->
+<div id="topbar" class="gone">
+  <div>
+    <div class="tb-logo">MAFIA<small>O'zbek O'yini</small></div>
   </div>
-</nav>
-
-<!-- AUTH SCREEN -->
-<div id="auth-screen" class="screen active">
-  <div class="auth-box">
-    <div class="auth-title">🎭 MAF</div>
-    <div class="auth-subtitle">O'zbek Mafiya O'yini — Eng yaxshi o'yin</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchTab('login')">Kirish</button>
-      <button class="auth-tab" onclick="switchTab('register')">Ro'yxatdan o'tish</button>
-    </div>
-    <div id="auth-error" class="auth-error"></div>
-    <div class="form-group">
-      <label>Foydalanuvchi nomi</label>
-      <input type="text" id="auth-username" placeholder="Username kiriting" />
-    </div>
-    <div class="form-group">
-      <label>Parol</label>
-      <input type="password" id="auth-password" placeholder="Parol kiriting" onkeydown="if(event.key==='Enter')authSubmit()" />
-    </div>
-    <button class="auth-btn" id="auth-btn" onclick="authSubmit()">Kirish</button>
-    <div style="text-align:center;margin-top:20px;color:var(--muted);font-size:0.8rem">
-      Demo: admin / admin123 kiriting
-    </div>
+  <div class="tb-right">
+    <div class="online-chip"><div class="o-dot"></div><span id="ocnt">0</span> online</div>
+    <div class="notif-btn" onclick="toggleNotif()">🔔<span class="n-count" id="n-count">0</span></div>
   </div>
 </div>
-
-<!-- LOBBY SCREEN -->
-<div id="lobby-screen" class="screen">
-  <div class="hero-text">
-    <h1>🎭 Mafia O'yiniga Xush Kelibsiz</h1>
-    <p>Xona yarating yoki mavjud xonaga qo'shiling va o'ynang!</p>
-  </div>
-  <div class="lobby-grid">
-    <!-- Left: User Panel -->
-    <div>
-      <div class="panel" style="margin-bottom:16px">
-        <div class="panel-body">
-          <img id="user-avatar" class="user-avatar" src="" alt="">
-          <div class="user-name" id="user-name">...</div>
-          <div class="rank-badge" id="user-rank-badge">...</div>
-          <div class="stat-grid">
-            <div class="stat-item"><div class="stat-value" id="stat-games">0</div><div class="stat-label">O'yinlar</div></div>
-            <div class="stat-item"><div class="stat-value" id="stat-wins">0</div><div class="stat-label">G'alabalar</div></div>
-            <div class="stat-item"><div class="stat-value" id="stat-wr">0%</div><div class="stat-label">Win Rate</div></div>
-          </div>
-          <button class="btn btn-primary" style="width:100%" onclick="openRanksModal()">👑 Rank olish</button>
-        </div>
+ 
+<!-- ═══════ APP BODY ═══════ -->
+<div id="app-body">
+ 
+  <!-- ══ AUTH SCREEN ══ -->
+  <div id="auth-screen" class="screen active">
+    <div class="auth-wrap">
+      <div class="auth-brand">
+        <div class="auth-brand-logo">🎭 MAFIA</div>
+        <div class="auth-brand-sub"><span>O'zbekiston</span> · <span>Online</span> · <span>Bepul</span></div>
       </div>
-      <!-- Friends -->
-      <div class="panel">
-        <div class="panel-header">
-          <span class="panel-title">Do'stlar</span>
+      <div class="auth-card">
+        <div class="auth-tabs">
+          <button class="auth-tab active" onclick="authSwitchTab('login')">Kirish</button>
+          <button class="auth-tab" onclick="authSwitchTab('register')">Ro'yxat</button>
         </div>
-        <div class="panel-body">
-          <div class="friends-list" id="friends-list"><div style="color:var(--muted);font-size:0.85rem;text-align:center">Do'stlar yo'q</div></div>
-          <div class="add-friend-form">
-            <input type="text" id="friend-username-input" placeholder="Username..." />
-            <button class="btn btn-outline btn-sm" onclick="addFriend()">+ Qo'sh</button>
-          </div>
+        <div class="auth-err" id="auth-err"></div>
+        <div class="form-g">
+          <label>Foydalanuvchi nomi</label>
+          <input class="inp" id="a-user" placeholder="Username..." autocomplete="username" />
         </div>
-      </div>
-    </div>
-
-    <!-- Center: Rooms -->
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">🚪 Xonalar</span>
-        <button class="btn btn-primary btn-sm" onclick="openCreateRoom()">+ Xona yaratish</button>
-      </div>
-      <div class="panel-body">
-        <div class="rooms-list" id="rooms-list">
-          <div class="loading"><div class="spinner"></div>Yuklanmoqda...</div>
+        <div class="form-g">
+          <label>Parol</label>
+          <input class="inp" id="a-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth()" />
         </div>
-      </div>
-    </div>
-
-    <!-- Right: Chat / Leaderboard -->
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">🏆 Eng Yaxshilar</span>
-      </div>
-      <div class="panel-body">
-        <div style="color:var(--muted);text-align:center;font-size:0.85rem;padding:20px">
-          O'yin statistikasi tez orada!
-        </div>
-        <div style="margin-top:16px;padding:16px;background:var(--bg);border-radius:12px;text-align:center">
-          <div style="font-size:0.8rem;color:var(--muted);margin-bottom:8px">O'yin qoidalari</div>
-          <div style="font-size:0.82rem;color:var(--text);line-height:1.8">
-            🔫 Mafiya — Fuqarolarni yo'q qiladi<br>
-            👮 Detektiv — Mafiachini topadi<br>
-            💊 Doktor — Birini qutqaradi<br>
-            👥 Fuqaro — Mafiachini topishga harakat qiladi<br>
-            👑 Don — Mafiya boshlig'i
+        <div class="form-g" id="gender-field" style="display:none">
+          <label>Jinsingiz</label>
+          <div class="gender-pick">
+            <div class="gender-opt active" id="g-m" onclick="pickGender('male')">
+              <span class="gender-opt-icon">👨</span>
+              <span class="gender-opt-label">Erkak</span>
+            </div>
+            <div class="gender-opt" id="g-f" onclick="pickGender('female')">
+              <span class="gender-opt-icon">👩</span>
+              <span class="gender-opt-label">Ayol</span>
+            </div>
           </div>
         </div>
+        <button class="auth-submit" id="auth-btn" onclick="doAuth()">Kirish →</button>
+        <div class="auth-features" id="auth-feats" style="display:none">
+          <div class="auth-feat"><span class="auth-feat-icon">🎮</span>Real-vaqt o'yin</div>
+          <div class="auth-feat"><span class="auth-feat-icon">👑</span>Rank tizimi</div>
+          <div class="auth-feat"><span class="auth-feat-icon">👥</span>Do'stlar</div>
+          <div class="auth-feat"><span class="auth-feat-icon">💬</span>Xabarlar</div>
+        </div>
       </div>
+      <div style="text-align:center;margin-top:14px;font-size:.7rem;color:var(--muted);font-weight:600">Demo: admin / admin123</div>
     </div>
   </div>
-</div>
-
-<!-- ROOM SCREEN -->
-<div id="room-screen" class="screen">
-  <div style="max-width:1200px;margin:0 auto;padding:24px">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-      <button class="btn btn-outline btn-sm" onclick="leaveRoom()">← Orqaga</button>
-      <h2 id="room-title" style="font-family:'Cinzel',serif;color:var(--accent)">Xona</h2>
-      <span id="room-id-badge" style="color:var(--muted);font-size:0.85rem"></span>
+ 
+  <!-- ══ LOBBY SCREEN ══ -->
+  <div id="lobby-screen" class="screen">
+    <div id="lobby-grid" class="lobby-grid" style="display:flex;flex-direction:column;gap:12px">
+      <!-- Left col: user + friends -->
+      <div id="lobby-left">
+        <!-- User strip -->
+        <div class="user-strip" id="user-strip">
+          <img class="av av-border us-av" id="u-av" src="https://api.dicebear.com/7.x/pixel-art/svg?seed=x" alt="">
+          <div class="us-info">
+            <div class="us-name" id="u-name">—</div>
+            <div class="us-id">ID: <span id="u-id">——</span></div>
+            <div><span class="rb" id="u-rb">—</span></div>
+            <div class="us-stats">
+              <span class="us-stat"><b id="u-g">0</b> o'yin</span>
+              <span class="us-stat"><b id="u-w">0</b> g'alaba</span>
+            </div>
+          </div>
+          <div class="us-right">
+            <button class="btn btn-gold btn-xs" onclick="openMod('ranks-mod')">👑 Ranklar</button>
+            <button class="btn btn-outline btn-xs" onclick="goTab('profile')">Profil</button>
+          </div>
+        </div>
+        <!-- Friends mini (hidden on mobile, shown on desktop) -->
+        <div class="card" id="friends-mini-wrap" style="display:none">
+          <div class="card-hd">
+            <span class="card-title">Do'stlar</span>
+            <button class="btn btn-ghost btn-xs" onclick="goTab('friends')" style="font-size:.72rem">Barchasi →</button>
+          </div>
+          <div class="card-bd friends-mini-list" id="friends-mini-list">
+            <div style="color:var(--muted);font-size:.75rem;text-align:center;padding:8px">Yuklanmoqda...</div>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- Center: Rooms -->
+      <div id="lobby-center">
+        <div class="rooms-header">
+          <div class="section-title" style="margin:0">🚪 Xonalar</div>
+          <button class="btn btn-gold btn-sm" onclick="openMod('create-mod')">+ Xona</button>
+        </div>
+        <div id="rooms-list" style="margin-top:10px">
+          <div class="no-rooms"><div class="no-rooms-icon">🕐</div>Yuklanmoqda...</div>
+        </div>
+      </div>
+ 
+      <!-- Right col: leaderboard (desktop) -->
+      <div id="lobby-right" style="display:none">
+        <div class="card">
+          <div class="card-hd"><span class="card-title">🏆 Eng Yaxshilar</span></div>
+          <div class="card-bd" id="lb-list">
+            <div style="color:var(--muted);font-size:.75rem;text-align:center;padding:12px">Yuklanmoqda...</div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="room-layout">
+  </div>
+ 
+  <!-- ══ FRIENDS SCREEN ══ -->
+  <div id="friends-screen" class="screen">
+    <div class="fr-tabs">
+      <button class="fr-tab active" onclick="frTab('list')">Do'stlar</button>
+      <button class="fr-tab" id="frt-reqs" onclick="frTab('reqs')">
+        So'rovlar
+        <span class="fr-tab-badge" id="fr-req-badge">0</span>
+      </button>
+      <button class="fr-tab" onclick="frTab('find')">Qidirish</button>
+    </div>
+    <div id="fr-list"></div>
+    <div id="fr-reqs" style="display:none"></div>
+    <div id="fr-find" style="display:none">
+      <div class="form-g">
+        <label>Username yoki ID kiriting</label>
+        <input class="inp" id="fr-q" placeholder="Username yoki 6-raqamli ID..." oninput="debSearch()" />
+      </div>
+      <div id="fr-results"></div>
+    </div>
+  </div>
+ 
+  <!-- ══ MESSAGES SCREEN ══ -->
+  <div id="messages-screen" class="screen">
+    <div id="conv-list-area">
+      <div class="conv-wrap">
+        <div id="conv-list"></div>
+        <div id="conv-empty" class="empty-conv">
+          <div class="empty-conv-icon">💬</div>
+          <p>Do'stlaringiz bilan<br>suhbat boshlang</p>
+        </div>
+      </div>
+    </div>
+    <!-- Chat view -->
+    <div id="chat-view">
+      <div class="chat-tb">
+        <button class="chat-back" onclick="closeChat()">←</button>
+        <img class="av chat-tb-av" id="cv-av" src="" alt="">
+        <div>
+          <div class="chat-tb-name" id="cv-name">—</div>
+          <div class="chat-tb-status" id="cv-status">—</div>
+        </div>
+      </div>
+      <div class="chat-msgs" id="cv-msgs">
+        <div class="empty-conv" style="flex:1">
+          <div class="empty-conv-icon" style="font-size:2rem">👋</div>
+          <p style="font-size:.78rem">Suhbatni boshlang!</p>
+        </div>
+      </div>
+      <div class="chat-in-row">
+        <input class="inp" id="cv-in" placeholder="Xabar yozing..." onkeydown="if(event.key==='Enter')sendMsg()" />
+        <button class="btn btn-gold btn-sm" onclick="sendMsg()">→</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ══ PROFILE SCREEN ══ -->
+  <div id="profile-screen" class="screen">
+    <div class="profile-hero">
+      <div class="prof-av-wrap">
+        <img class="av prof-av" id="prof-av" src="" alt="">
+        <div class="prof-av-edit" onclick="openMod('gender-mod')">✏️</div>
+      </div>
+      <div class="prof-name" id="prof-name">—</div>
+      <div class="prof-id" id="prof-id">ID: ——</div>
+      <div id="prof-rb"></div>
+      <div class="prof-stats">
+        <div class="ps"><div class="ps-v" id="ps-g">0</div><div class="ps-l">O'yinlar</div></div>
+        <div class="ps"><div class="ps-v" id="ps-w">0</div><div class="ps-l">G'alaba</div></div>
+        <div class="ps"><div class="ps-v" id="ps-wr">0%</div><div class="ps-l">Win %</div></div>
+      </div>
+    </div>
+    <div style="padding:0 14px 14px;display:flex;flex-direction:column;gap:10px">
+      <!-- Rank card -->
+      <div class="rank-hero-card">
+        <div class="rank-big-icon" id="prof-rank-icon">👤</div>
+        <div class="rank-big-name" id="prof-rank-name">Oddiy</div>
+        <div class="rank-expiry" id="prof-rank-exp"></div>
+        <button class="btn btn-gold btn-sm" style="margin-top:12px" onclick="openMod('ranks-mod')">👑 Rank haqida</button>
+      </div>
+      <!-- Gender/avatar -->
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Avatar & Jins</span></div>
+        <div class="card-bd">
+          <div style="font-size:.78rem;color:var(--muted);font-weight:600;margin-bottom:10px">Jinsingizni tanlang — avatar avtomatik yangilanadi</div>
+          <div class="gender-cards">
+            <div class="gc" id="gc-m" onclick="updateGender('male')">
+              <div class="gc-icon">👨</div>
+              <div class="gc-label">Erkak</div>
+              <div class="gc-sub">Pixel Art</div>
+            </div>
+            <div class="gc" id="gc-f" onclick="updateGender('female')">
+              <div class="gc-icon">👩</div>
+              <div class="gc-label">Ayol</div>
+              <div class="gc-sub">Avataaars</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Logout -->
+      <button class="btn btn-red btn-full btn-lg" onclick="logout()">🚪 Hisobdan chiqish</button>
+    </div>
+  </div>
+ 
+  <!-- ══ ROOM SCREEN ══ -->
+  <div id="room-screen" class="screen">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <button class="btn btn-outline btn-sm" onclick="leaveRoom()">← Chiqish</button>
       <div>
-        <div id="phase-banner" class="phase-banner" style="display:none">
-          <h2 id="phase-text">...</h2>
-          <div class="phase-timer" id="phase-timer">--</div>
-        </div>
-        <div id="role-card" class="role-card" style="display:none">
-          <div class="role-icon" id="role-icon">?</div>
-          <div class="role-name" id="role-name">Rol</div>
-          <div class="role-desc" id="role-desc"></div>
-          <div class="role-teammates" id="role-teammates"></div>
-        </div>
-        <div class="players-grid" id="players-grid"></div>
-        <div id="room-controls" style="display:flex;gap:10px;margin-top:12px">
-          <button id="ready-btn" class="btn btn-green" onclick="toggleReady()">✓ Tayyor</button>
-          <button id="start-btn" class="btn btn-primary" onclick="startGame()" style="display:none">▶ Boshlash</button>
-        </div>
+        <div style="font-family:'Cinzel',serif;color:var(--gold);font-size:.9rem" id="room-title">Xona</div>
+        <div style="font-size:.62rem;color:var(--muted);font-weight:700;font-family:monospace">ID: <span id="room-id-txt"></span></div>
       </div>
-      <div class="panel chat-panel">
-        <div class="panel-header"><span class="panel-title">💬 Chat</span></div>
-        <div class="chat-messages" id="chat-messages"></div>
-        <div class="chat-input-row">
-          <input class="chat-input" id="chat-input" placeholder="Xabar yozing..." onkeydown="if(event.key==='Enter')sendChat()" />
-          <button class="btn btn-primary btn-sm" onclick="sendChat()">→</button>
-        </div>
+    </div>
+    <div id="phase-banner" class="phase-banner">
+      <div class="phase-title" id="phase-txt">—</div>
+      <div class="phase-timer" id="phase-timer">—</div>
+    </div>
+    <div id="role-reveal" class="role-reveal">
+      <div class="rr-icon" id="rr-icon">?</div>
+      <div class="rr-name" id="rr-name">—</div>
+      <div class="rr-desc" id="rr-desc"></div>
+      <div class="rr-mates" id="rr-mates"></div>
+    </div>
+    <div class="players-grid" id="players-grid"></div>
+    <div class="room-btns">
+      <button class="btn btn-green btn-sm" id="ready-btn" onclick="toggleReady()">✓ Tayyor</button>
+      <button class="btn btn-gold btn-sm" id="start-btn" style="display:none" onclick="startGame()">▶ Boshlash</button>
+    </div>
+    <div class="room-chat">
+      <div class="rc-msgs" id="rc-msgs"></div>
+      <div class="rc-in">
+        <input id="rc-in" placeholder="Xabar yozing..." onkeydown="if(event.key==='Enter')sendRChat()" />
+        <button class="btn btn-gold btn-xs" onclick="sendRChat()">→</button>
       </div>
     </div>
   </div>
+ 
+</div><!-- /app-body -->
+ 
+<!-- ═══════ BOTTOM NAV ═══════ -->
+<div id="bottomnav" class="gone">
+  <button class="bn-item active" id="bn-lobby" onclick="goTab('lobby')">
+    <div class="bn-icon">🎮</div><div class="bn-label">O'yin</div>
+  </button>
+  <button class="bn-item" id="bn-friends" onclick="goTab('friends')">
+    <div class="bn-icon" style="position:relative">👥<span class="bn-badge" id="fr-bn-badge"></span></div>
+    <div class="bn-label">Do'stlar</div>
+  </button>
+  <button class="bn-item" id="bn-messages" onclick="goTab('messages')">
+    <div class="bn-icon" style="position:relative">💬<span class="bn-badge" id="msg-bn-badge"></span></div>
+    <div class="bn-label">Xabarlar</div>
+  </button>
+  <button class="bn-item" id="bn-profile" onclick="goTab('profile')">
+    <div class="bn-icon">👤</div><div class="bn-label">Profil</div>
+  </button>
 </div>
-
-<!-- MODALS -->
+ 
+<!-- ═══════ MODALS ═══════ -->
+ 
 <!-- Ranks Modal -->
-<div class="modal-overlay" id="ranks-modal">
+<div class="ovl" id="ranks-mod">
   <div class="modal">
-    <div class="modal-header">
-      <h2>👑 Rank Tizimi</h2>
-      <button class="modal-close" onclick="closeModal('ranks-modal')">×</button>
-    </div>
-    <div class="modal-body">
-      <div style="text-align:center;color:var(--muted);margin-bottom:24px;font-size:0.9rem">
-        Rank olib, maxsus imkoniyatlardan foydalaning! Oylik narxlar (so'm)
+    <div class="modal-hd"><h3>👑 Rank Tizimi</h3><button class="modal-x" onclick="closeMod('ranks-mod')">×</button></div>
+    <div class="modal-bd">
+      <div style="background:rgba(212,168,67,.08);border:1px solid rgba(212,168,67,.18);border-radius:10px;padding:12px;font-size:.76rem;color:var(--text2);font-weight:600;margin-bottom:16px;line-height:1.8">
+        🔐 Rank faqat <b style="color:var(--gold)">admin</b> tomonidan beriladi.<br>
+        To'lov qilib, akkaunt ID ingizni (<b style="color:var(--gold)" id="modal-my-id">—</b>) adminga yuboring.
       </div>
-      <div class="ranks-grid" id="ranks-grid"></div>
-      <div style="margin-top:24px;padding:16px;background:var(--bg);border-radius:12px;font-size:0.82rem;color:var(--muted)">
-        💳 To'lash uchun: To'lov tugmasini bosing va admin bilan bog'laning yoki Payme/Click orqali to'lang.
-        To'lovdan so'ng admin rank faollashtiradi.
-      </div>
+      <div id="rank-modal-list"></div>
     </div>
   </div>
 </div>
-
+ 
 <!-- Create Room Modal -->
-<div class="modal-overlay" id="create-room-modal">
-  <div class="modal" style="max-width:480px">
-    <div class="modal-header">
-      <h2>🚪 Xona Yaratish</h2>
-      <button class="modal-close" onclick="closeModal('create-room-modal')">×</button>
+<div class="ovl" id="create-mod">
+  <div class="modal">
+    <div class="modal-hd"><h3>🚪 Xona Yaratish</h3><button class="modal-x" onclick="closeMod('create-mod')">×</button></div>
+    <div class="modal-bd">
+      <div class="form-g">
+        <label>Xona nomi</label>
+        <input class="inp" id="cr-name" placeholder="Toshkent Mafiasi" />
+      </div>
+      <div class="form-g">
+        <label>O'yinchilar soni (4–12)</label>
+        <input class="inp" id="cr-max" type="number" value="6" min="4" max="12" />
+      </div>
+      <div class="form-g">
+        <label>Parol (ixtiyoriy — xususiy xona)</label>
+        <input class="inp" id="cr-pass" type="password" placeholder="Bo'sh qoldirsa ochiq xona bo'ladi" />
+      </div>
+      <button class="btn btn-gold btn-full btn-lg" onclick="createRoom()">Yaratish</button>
     </div>
-    <div class="modal-body">
-      <div class="create-room-form">
-        <div class="form-group">
-          <label>Xona nomi</label>
-          <input type="text" id="room-name-input" placeholder="Masalan: Toshkent Mafiasi" />
+  </div>
+</div>
+ 
+<!-- Join Password Modal -->
+<div class="ovl" id="join-pass-mod">
+  <div class="modal">
+    <div class="modal-hd"><h3>🔒 Xona Paroli</h3><button class="modal-x" onclick="closeMod('join-pass-mod')">×</button></div>
+    <div class="modal-bd">
+      <div class="form-g">
+        <label>Parolni kiriting</label>
+        <input class="inp" id="jp-in" type="password" placeholder="Parol..." />
+      </div>
+      <button class="btn btn-gold btn-full" onclick="confirmJoin()">Kirish</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- Gender/Avatar Modal -->
+<div class="ovl" id="gender-mod">
+  <div class="modal">
+    <div class="modal-hd"><h3>🎨 Avatar Tanlash</h3><button class="modal-x" onclick="closeMod('gender-mod')">×</button></div>
+    <div class="modal-bd">
+      <div class="gender-cards">
+        <div class="gc" onclick="updateGender('male');closeMod('gender-mod')">
+          <div class="gc-icon">👨</div><div class="gc-label">Erkak</div><div class="gc-sub">Pixel Art uslubi</div>
         </div>
-        <div class="form-group">
-          <label>Max o'yinchilar (4-12)</label>
-          <input type="number" id="room-max-input" value="6" min="4" max="12" />
+        <div class="gc" onclick="updateGender('female');closeMod('gender-mod')">
+          <div class="gc-icon">👩</div><div class="gc-label">Ayol</div><div class="gc-sub">Avataaars uslubi</div>
         </div>
-        <div class="form-group">
-          <label>Parol (ixtiyoriy)</label>
-          <input type="password" id="room-pass-input" placeholder="Xususiy xona uchun parol" />
-        </div>
-        <button class="btn btn-primary" onclick="createRoom()" style="width:100%">Yaratish</button>
       </div>
     </div>
   </div>
 </div>
-
-<!-- Join Room Modal -->
-<div class="modal-overlay" id="join-room-modal">
-  <div class="modal" style="max-width:400px">
-    <div class="modal-header">
-      <h2>🚪 Xonaga Kirish</h2>
-      <button class="modal-close" onclick="closeModal('join-room-modal')">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label>Xona paroli</label>
-        <input type="password" id="join-pass-input" placeholder="Parolni kiriting" />
-      </div>
-      <button class="btn btn-primary" onclick="confirmJoinRoom()" style="width:100%">Kirish</button>
-    </div>
+ 
+<!-- Notification Panel -->
+<div class="np" id="np">
+  <div class="np-hd">
+    <h4>🔔 Bildirishnomalar</h4>
+    <button class="btn btn-ghost btn-xs" onclick="clearNotifs()">Tozalash</button>
+  </div>
+  <div class="np-list" id="np-list">
+    <div class="np-empty">Bildirishnoma yo'q</div>
   </div>
 </div>
-
-<!-- Game Over Overlay -->
-<div class="gameover-overlay" id="gameover-overlay">
-  <div class="gameover-box">
-    <span class="gameover-emoji" id="gameover-emoji">🏆</span>
-    <div class="gameover-title" id="gameover-title">O'yin Tugadi!</div>
-    <div style="font-size:1.1rem;margin-bottom:16px;color:var(--muted)" id="gameover-result"></div>
-    <div style="font-size:0.9rem;color:var(--muted);margin-bottom:12px">G'oliblar:</div>
-    <div class="winners-list" id="gameover-winners"></div>
-    <div style="margin-top:24px;margin-bottom:16px">
-      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:8px">Barcha rollar:</div>
-      <div id="gameover-roles" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center"></div>
-    </div>
-    <button class="btn btn-primary" onclick="exitToLobby()" style="width:100%">Lobbiga qaytish</button>
+ 
+<!-- Game Over -->
+<div class="go-ovl" id="go-ovl">
+  <div class="go-box">
+    <span class="go-emoji" id="go-emoji">🏆</span>
+    <div class="go-title">O'yin Tugadi!</div>
+    <div class="go-result" id="go-result">—</div>
+    <div style="font-size:.72rem;color:var(--muted);font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">G'oliblar</div>
+    <div class="win-row" id="go-winners"></div>
+    <div style="font-size:.72rem;color:var(--muted);font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Barcha rollar</div>
+    <div class="roles-wrap" id="go-roles"></div>
+    <button class="btn btn-gold btn-full btn-lg" style="margin-top:4px" onclick="exitGame()">🏠 Lobbiga qaytish</button>
   </div>
 </div>
-
-<!-- Toast Container -->
-<div class="toast-container" id="toast-container"></div>
-
-<script src="/socket.io/socket.io.js"></script>
+ 
+<!-- Night Action -->
+<div class="na-ovl" id="na-ovl">
+  <div class="na-box">
+    <div style="text-align:center;font-size:2rem;margin-bottom:8px">🌙</div>
+    <div class="na-title" id="na-title">Kecha harakati</div>
+    <div class="na-label" id="na-label">Kim tanlaysiz?</div>
+    <div class="na-grid" id="na-grid"></div>
+    <button class="btn btn-red btn-full" onclick="skipNA()">O'tkazib yuborish</button>
+  </div>
+</div>
+ 
+<!-- Toasts -->
+<div class="toasts" id="toasts"></div>
+ 
+<!-- ═══════ JAVASCRIPT ═══════ -->
 <script>
-const API = '';
-let socket, token, currentUser, currentRoom, pendingJoinRoomId, timerInterval;
-
-// ===== INIT =====
-window.onload = () => {
-  const savedToken = localStorage.getItem('mafia_token');
-  if (savedToken) { token = savedToken; fetchMe(); }
+// ── DEMO DATA (FRONTEND ONLY) ──────────────────────────────────────────────
+// Bu frontend demo versiyasi — backend ulanganda bu ma'lumotlar o'chadi
+ 
+const DEMO = {
+  me: {
+    id: '482951', username: 'adham123', gender: 'male', rank: 'ultimate',
+    avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=adham123',
+    stats: { gamesPlayed: 47, wins: 28, losses: 19 },
+    rankExpiry: new Date(Date.now() + 25*86400000).toISOString()
+  },
+  friends: [
+    { id: '112233', username: 'sardor_pro', rank: 'pro', online: true,  gender:'male',   avatar:'https://api.dicebear.com/7.x/pixel-art/svg?seed=sardor' },
+    { id: '445566', username: 'malika_uz',  rank: 'vip', online: false, gender:'female', avatar:'https://api.dicebear.com/7.x/avataaars/svg?seed=malika' },
+    { id: '778899', username: 'javlon99',   rank: 'max', online: true,  gender:'male',   avatar:'https://api.dicebear.com/7.x/pixel-art/svg?seed=javlon' },
+    { id: '334455', username: 'zulfiya_g',  rank: 'oddiy', online: false, gender:'female', avatar:'https://api.dicebear.com/7.x/avataaars/svg?seed=zulfiya' },
+  ],
+  friendRequests: [
+    { fromId:'990011', fromName:'kamol_uz', fromAvatar:'https://api.dicebear.com/7.x/pixel-art/svg?seed=kamol', fromRank:'pro', sentAt:new Date().toISOString() }
+  ],
+  rooms: [
+    { id:'193847', name:'Toshkent Mafiasi 🔥', host:'sardor_pro', players:5, maxPlayers:8, hasPassword:false, status:'waiting' },
+    { id:'284756', name:'Pro Xona 💎', host:'javlon99', players:3, maxPlayers:6, hasPassword:true, status:'waiting' },
+    { id:'375918', name:'Boshlovchilar', host:'ali_123', players:8, maxPlayers:8, hasPassword:false, status:'playing' },
+    { id:'466283', name:'Do\'stlar bilan', host:'muhammadali', players:2, maxPlayers:10, hasPassword:false, status:'waiting' },
+  ],
+  leaderboard: [
+    { id:'001', username:'sardor_pro', rank:'pro', wins:142, gamesPlayed:180, avatar:'https://api.dicebear.com/7.x/pixel-art/svg?seed=sardor' },
+    { id:'002', username:'javlon99', rank:'max', wins:98, gamesPlayed:130, avatar:'https://api.dicebear.com/7.x/pixel-art/svg?seed=javlon' },
+    { id:'003', username:'kamol_uz', rank:'ultimate', wins:87, gamesPlayed:100, avatar:'https://api.dicebear.com/7.x/pixel-art/svg?seed=kamol' },
+    { id:'004', username:'adham123', rank:'ultimate', wins:28, gamesPlayed:47, avatar:'https://api.dicebear.com/7.x/pixel-art/svg?seed=adham123' },
+    { id:'005', username:'malika_uz', rank:'vip', wins:22, gamesPlayed:40, avatar:'https://api.dicebear.com/7.x/avataaars/svg?seed=malika' },
+  ],
+  messages: {
+    '112233': [
+      { id:'1', from:'112233', fromName:'sardor_pro', text:'Salom bro, bugun o\'ynayapmizmi?', sentAt: new Date(Date.now()-3600000).toISOString() },
+      { id:'2', from:'482951', fromName:'adham123', text:'Ha, kechqurun! 8da bo\'lamiz?', sentAt: new Date(Date.now()-3500000).toISOString() },
+      { id:'3', from:'112233', fromName:'sardor_pro', text:'Yaxshi, 8da 🎮', sentAt: new Date(Date.now()-3400000).toISOString() },
+    ],
+    '445566': [
+      { id:'4', from:'445566', fromName:'malika_uz', text:'Xona yaratib yubor!', sentAt: new Date(Date.now()-7200000).toISOString() },
+    ]
+  },
+  ranks: {
+    vip:      { label:'⭐ VIP',      price:5000,  color:'#f59e0b', abilities:['Maxsus avatar','3 ta xona','VIP chat rangi','Tez ulanish'] },
+    pro:      { label:'💎 PRO',      price:15000, color:'#3b82f6', abilities:['VIP+','5 ta xona','Statistika','Rol tanlash','Animatsiya'] },
+    max:      { label:'🔥 MAX',      price:35000, color:'#ef4444', abilities:['PRO+','10 ta xona','Maxsus karta','Xona paroli boshqaruv'] },
+    ultimate: { label:'👑 ULTIMATE', price:75000, color:'#a855f7', abilities:['Hamma narsa','Cheksiz xona','Global effektlar','VIP server'] }
+  }
 };
-
-async function fetchMe() {
-  try {
-    const res = await fetch(`${API}/api/me`, { headers: { Authorization: `Bearer ${token}` } });
-    if (!res.ok) throw new Error();
-    currentUser = await res.json();
+ 
+// ── STATE ──────────────────────────────────────────────────────────────────
+let me = null, curTab = 'lobby', curFrTab = 'list';
+let chatUserId = null, chatUserName = '', chatUserAv = '';
+let notifs = [], unreadMsgs = {}, unreadFr = 0;
+let currentRoom = null, pendingJoinId = null, timerInt = null;
+let authMode = 'login', selGender = 'male';
+let srchTimer = null;
+ 
+// ── INIT ───────────────────────────────────────────────────────────────────
+window.onload = () => {
+  // Auto-login demo (in production: check localStorage for token)
+  const saved = localStorage.getItem('demo_logged_in');
+  if (saved) {
+    me = DEMO.me;
     initApp();
-  } catch { localStorage.removeItem('mafia_token'); }
+  }
+  // Responsive layout
+  handleResize();
+  window.addEventListener('resize', handleResize);
+};
+ 
+function handleResize() {
+  const w = window.innerWidth;
+  const left = document.getElementById('lobby-left');
+  const right = document.getElementById('lobby-right');
+  const grid = document.getElementById('lobby-grid');
+  const fmini = document.getElementById('friends-mini-wrap');
+  if (w >= 700) {
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = w >= 1000 ? '280px 1fr 260px' : '280px 1fr';
+    if (fmini) fmini.style.display = 'block';
+    if (right) right.style.display = w >= 1000 ? 'block' : 'none';
+  } else {
+    grid.style.display = 'flex';
+    grid.style.flexDirection = 'column';
+    if (fmini) fmini.style.display = 'none';
+    if (right) right.style.display = 'none';
+  }
 }
-
+ 
 function initApp() {
-  document.getElementById('main-nav').style.display = 'flex';
-  showScreen('lobby-screen');
-  updateUserPanel();
-  initSocket();
-  loadRooms();
-  loadFriends();
-}
-
-function initSocket() {
-  socket = io();
-  socket.on('connect', () => socket.emit('authenticate', token));
-  socket.on('authenticated', (user) => { currentUser = user; updateUserPanel(); });
-  socket.on('auth_error', (msg) => showToast(msg, 'error'));
-  socket.on('online_count', (n) => document.getElementById('online-count').textContent = n);
-  socket.on('rooms_updated', renderRooms);
-  socket.on('error', (msg) => showToast(msg, 'error'));
-  socket.on('room_created', ({ roomId }) => { closeModal('create-room-modal'); joinRoomById(roomId); });
-  socket.on('joined_room', (room) => { currentRoom = room; showRoomScreen(); });
-  socket.on('room_updated', (room) => { currentRoom = room; renderPlayers(); });
-  socket.on('game_started', ({ message }) => { showToast(message, 'success'); });
-  socket.on('your_role', (data) => showRole(data));
-  socket.on('phase_change', (data) => handlePhaseChange(data));
-  socket.on('vote_update', (votes) => renderVotes(votes));
-  socket.on('night_action_required', (data) => showNightAction(data));
-  socket.on('night_results', (results) => showNightResults(results));
-  socket.on('player_eliminated', (data) => showElimination(data));
-  socket.on('detective_result', (data) => showDetectiveResult(data));
-  socket.on('chat_message', (msg) => addChatMessage(msg));
-  socket.on('mafia_chat', (msg) => addChatMessage(msg, true));
-  socket.on('game_message', (msg) => addSystemMessage(msg));
-  socket.on('action_confirmed', (msg) => showToast(msg, 'info'));
-  socket.on('game_over', (data) => showGameOver(data));
-  socket.on('friend_invite', (data) => {
-    showToast(`${data.from} sizni xonaga taklif qildi!`, 'info');
-    if (confirm(`${data.from} sizni xonaga taklif qildi. Kirmoqchimisiz?`)) {
-      joinRoomById(data.roomId);
+  document.getElementById('topbar').classList.remove('gone');
+  document.getElementById('bottomnav').classList.remove('gone');
+  document.getElementById('auth-screen').classList.remove('active');
+  document.getElementById('ocnt').textContent = Math.floor(Math.random()*80)+12;
+  goTab('lobby');
+  updateUserUI();
+  renderRooms(DEMO.rooms);
+  renderLeaderboard();
+  loadFriendsMini();
+  // Simulate friend request notification
+  setTimeout(() => {
+    if (DEMO.friendRequests.length) {
+      unreadFr++;
+      updateFrBadge();
+      addNotif({ icon:'👥', text:`${DEMO.friendRequests[0].fromName} do'stlik so'rovi yubordi`, type:'fr', data:DEMO.friendRequests[0] });
     }
-  });
+  }, 2000);
 }
-
-// ===== AUTH =====
-let authMode = 'login';
-function switchTab(mode) {
+ 
+// ── AUTH ───────────────────────────────────────────────────────────────────
+function authSwitchTab(mode) {
   authMode = mode;
-  document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i===0&&mode==='login')||(i===1&&mode==='register')));
-  document.getElementById('auth-btn').textContent = mode === 'login' ? 'Kirish' : 'Ro\'yxatdan o\'tish';
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&mode==='login')||(i===1&&mode==='register')));
+  document.getElementById('auth-btn').textContent = mode === 'login' ? 'Kirish →' : 'Ro\'yxatdan o\'tish →';
+  document.getElementById('gender-field').style.display = mode === 'register' ? 'block' : 'none';
+  document.getElementById('auth-feats').style.display = mode === 'register' ? 'grid' : 'none';
+  document.getElementById('auth-err').style.display = 'none';
 }
-
-async function authSubmit() {
-  const username = document.getElementById('auth-username').value.trim();
-  const password = document.getElementById('auth-password').value;
-  const errEl = document.getElementById('auth-error');
+function pickGender(g) {
+  selGender = g;
+  document.getElementById('g-m').classList.toggle('active', g==='male');
+  document.getElementById('g-f').classList.toggle('active', g==='female');
+}
+function doAuth() {
+  const user = document.getElementById('a-user').value.trim();
+  const pass = document.getElementById('a-pass').value;
+  const errEl = document.getElementById('auth-err');
   errEl.style.display = 'none';
-  if (!username || !password) { errEl.textContent = 'Barcha maydonlarni to\'ldiring'; errEl.style.display = 'block'; return; }
-  
-  const endpoint = authMode === 'login' ? '/api/login' : '/api/register';
-  try {
-    const res = await fetch(`${API}${endpoint}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ username, password }) });
-    const data = await res.json();
-    if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; return; }
-    token = data.token; currentUser = data.user;
-    localStorage.setItem('mafia_token', token);
-    initApp();
-  } catch { errEl.textContent = 'Server bilan bog\'liq xatolik'; errEl.style.display = 'block'; }
+  if (!user || !pass) { errEl.textContent = 'Barcha maydonlarni to\'ldiring'; errEl.style.display='block'; return; }
+  if (authMode === 'login' && (user !== 'admin' && user !== 'adham123') ) {
+    errEl.textContent = 'Demo: admin / admin123 yoki adham123 / 123 kiriting';
+    errEl.style.display='block'; return;
+  }
+  // Demo login
+  me = { ...DEMO.me, username: user, id: String(Math.floor(100000+Math.random()*900000)) };
+  localStorage.setItem('demo_logged_in', '1');
+  initApp();
 }
-
 function logout() {
-  localStorage.removeItem('mafia_token');
-  token = null; currentUser = null;
-  if (socket) socket.disconnect();
-  showScreen('auth-screen');
-  document.getElementById('main-nav').style.display = 'none';
+  localStorage.removeItem('demo_logged_in');
+  me = null;
+  document.getElementById('topbar').classList.add('gone');
+  document.getElementById('bottomnav').classList.add('gone');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('auth-screen').classList.add('active');
+  document.getElementById('a-user').value = '';
+  document.getElementById('a-pass').value = '';
+  authSwitchTab('login');
 }
-
-// ===== USER PANEL =====
-function updateUserPanel() {
-  if (!currentUser) return;
-  const rankInfo = { oddiy:{label:'👤 Oddiy'}, vip:{label:'⭐ VIP'}, pro:{label:'💎 PRO'}, max:{label:'🔥 MAX'}, ultimate:{label:'👑 ULTIMATE'} };
-  document.getElementById('user-avatar').src = currentUser.avatar;
-  document.getElementById('user-name').textContent = currentUser.username;
-  const rb = document.getElementById('user-rank-badge');
-  rb.textContent = rankInfo[currentUser.rank]?.label || currentUser.rank;
-  rb.className = `rank-badge rank-${currentUser.rank}`;
-  document.getElementById('nav-user').textContent = `${rankInfo[currentUser.rank]?.label} ${currentUser.username}`;
-  document.getElementById('stat-games').textContent = currentUser.stats?.gamesPlayed || 0;
-  document.getElementById('stat-wins').textContent = currentUser.stats?.wins || 0;
-  const wr = currentUser.stats?.gamesPlayed > 0 ? Math.round((currentUser.stats.wins/currentUser.stats.gamesPlayed)*100) : 0;
-  document.getElementById('stat-wr').textContent = wr + '%';
+ 
+// ── NAVIGATION ─────────────────────────────────────────────────────────────
+function goTab(tab) {
+  curTab = tab;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const sc = document.getElementById(`${tab}-screen`);
+  if (sc) sc.classList.add('active');
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  const bn = document.getElementById(`bn-${tab}`);
+  if (bn) bn.classList.add('active');
+ 
+  if (tab === 'friends') { renderFriendsScreen(); unreadFr=0; updateFrBadge(); }
+  if (tab === 'messages') renderConvList();
+  if (tab === 'profile') renderProfileScreen();
+  if (tab === 'lobby') { renderRooms(DEMO.rooms); loadFriendsMini(); }
 }
-
-// ===== ROOMS =====
-async function loadRooms() {
-  const res = await fetch(`${API}/api/rooms`);
-  const rooms = await res.json();
-  renderRooms(rooms);
+ 
+// ── USER UI ────────────────────────────────────────────────────────────────
+function updateUserUI() {
+  if (!me) return;
+  setAvSrc('u-av', me.avatar);
+  document.getElementById('u-name').textContent = me.username;
+  document.getElementById('u-id').textContent = me.id;
+  const rb = document.getElementById('u-rb');
+  rb.className = `rb rb-${me.rank}`; rb.textContent = RL(me.rank);
+  document.getElementById('u-g').textContent = me.stats.gamesPlayed;
+  document.getElementById('u-w').textContent = me.stats.wins;
 }
-
+function renderProfileScreen() {
+  if (!me) return;
+  setAvSrc('prof-av', me.avatar);
+  document.getElementById('prof-name').textContent = me.username;
+  document.getElementById('prof-id').textContent = me.id;
+  document.getElementById('prof-rb').innerHTML = `<span class="rb rb-${me.rank}">${RL(me.rank)}</span>`;
+  document.getElementById('ps-g').textContent = me.stats.gamesPlayed;
+  document.getElementById('ps-w').textContent = me.stats.wins;
+  const wr = me.stats.gamesPlayed ? Math.round(me.stats.wins/me.stats.gamesPlayed*100) : 0;
+  document.getElementById('ps-wr').textContent = wr + '%';
+  const icons = {oddiy:'👤',vip:'⭐',pro:'💎',max:'🔥',ultimate:'👑'};
+  document.getElementById('prof-rank-icon').textContent = icons[me.rank]||'👤';
+  document.getElementById('prof-rank-name').textContent = RL(me.rank);
+  document.getElementById('prof-rank-exp').textContent = me.rankExpiry ? `Muddat: ${new Date(me.rankExpiry).toLocaleDateString('uz-UZ')}` : '';
+  document.getElementById(`gc-${me.gender==='female'?'f':'m'}`).classList.add('active');
+  document.getElementById(`gc-${me.gender==='female'?'m':'f'}`).classList.remove('active');
+}
+function updateGender(g) {
+  me.gender = g;
+  const style = g === 'female' ? 'avataaars' : 'pixel-art';
+  me.avatar = `https://api.dicebear.com/7.x/${style}/svg?seed=${me.username}${Date.now()}`;
+  updateUserUI(); renderProfileScreen(); loadFriendsMini();
+  toast('Avatar yangilandi! ✨', 'success');
+}
+ 
+// ── ROOMS ──────────────────────────────────────────────────────────────────
 function renderRooms(rooms) {
   const el = document.getElementById('rooms-list');
-  if (!rooms.length) { el.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px">Hech qanday xona yo\'q.<br>Birinchi bo\'ling!</div>'; return; }
+  if (!rooms.length) {
+    el.innerHTML = '<div class="no-rooms"><div class="no-rooms-icon">🎮</div>Hozircha xonalar yo\'q.<br>Birinchi bo\'ling!</div>';
+    return;
+  }
   el.innerHTML = rooms.map(r => `
-    <div class="room-card" onclick="clickJoinRoom('${r.id}', ${!!r.hasPassword})">
+    <div class="room-card" onclick="clickJoin('${r.id}',${!!r.hasPassword},${r.status==='playing'})">
+      <div class="room-av">${r.status==='playing'?'⚔️':'🚪'}</div>
       <div class="room-info">
-        <div class="room-name">${escHtml(r.name)} ${r.hasPassword ? '🔒' : ''}</div>
-        <div class="room-meta"><span class="status-dot status-${r.status}"></span>${r.host} • ${r.status === 'waiting' ? 'Kutilmoqda' : 'O\'yinda'}</div>
+        <div class="room-name">${X(r.name)}</div>
+        <div class="room-meta">
+          <span class="status-dot ${r.status==='playing'?'sd-play':'sd-wait'}"></span>
+          <span>${X(r.host)}</span>
+          ${r.hasPassword?'<span class="room-locked">🔒</span>':''}
+          <span>·</span>
+          <span>${r.status==='playing'?'O\'yinda':'Kutilmoqda'}</span>
+        </div>
       </div>
-      <div class="room-players">
-        <div class="count">${r.players}</div>
-        <div class="max">/ ${r.maxPlayers}</div>
+      <div class="room-right">
+        <div class="room-count">${r.players}</div>
+        <div class="room-max">/${r.maxPlayers}</div>
       </div>
     </div>
   `).join('');
 }
-
-function clickJoinRoom(roomId, hasPassword) {
-  if (hasPassword) {
-    pendingJoinRoomId = roomId;
-    openModal('join-room-modal');
-  } else {
-    joinRoomById(roomId);
-  }
+function clickJoin(id, hasPass, isPlaying) {
+  if (isPlaying) { toast('O\'yin allaqachon boshlangan!', 'error'); return; }
+  if (hasPass) { pendingJoinId = id; openMod('join-pass-mod'); }
+  else { toast(`Xonaga kirildi! ID: ${id}`, 'success'); showDemoRoom(id); }
 }
-
-function confirmJoinRoom() {
-  const pass = document.getElementById('join-pass-input').value;
-  closeModal('join-room-modal');
-  joinRoomById(pendingJoinRoomId, pass);
+function confirmJoin() {
+  const p = document.getElementById('jp-in').value.trim();
+  if (!p) { toast('Parolni kiriting!', 'error'); return; }
+  closeMod('join-pass-mod');
+  toast('Xonaga kirildi! ✅', 'success');
+  showDemoRoom(pendingJoinId);
 }
-
-function joinRoomById(roomId, password = '') {
-  socket.emit('join_room', { roomId, password });
-}
-
-function openCreateRoom() { openModal('create-room-modal'); }
-
 function createRoom() {
-  const name = document.getElementById('room-name-input').value.trim() || `${currentUser.username}ning xonasi`;
-  const maxPlayers = parseInt(document.getElementById('room-max-input').value) || 6;
-  const password = document.getElementById('room-pass-input').value || null;
-  socket.emit('create_room', { name, maxPlayers, password, private: !!password });
+  const name = document.getElementById('cr-name').value.trim() || `${me.username} xonasi`;
+  const max = parseInt(document.getElementById('cr-max').value)||6;
+  closeMod('create-mod');
+  toast(`"${name}" xonasi yaratildi!`, 'success');
+  showDemoRoom('NEW');
+  document.getElementById('cr-name').value = '';
+  document.getElementById('cr-pass').value = '';
 }
-
-// ===== ROOM SCREEN =====
-function showRoomScreen() {
-  showScreen('room-screen');
+function showDemoRoom(id) {
+  currentRoom = {
+    id: id || '839201', name: `${me.username} xonasi`,
+    host: me.username, hostId: me.id,
+    players: [
+      { id: me.id, username: me.username, rank: me.rank, avatar: me.avatar, ready: false, alive: true, gender: me.gender },
+      { id:'112233', username:'sardor_pro', rank:'pro', avatar:DEMO.friends[0].avatar, ready:true, alive:true, gender:'male' },
+      { id:'445566', username:'malika_uz', rank:'vip', avatar:DEMO.friends[1].avatar, ready:false, alive:true, gender:'female' },
+    ],
+    status: 'waiting', phase: null
+  };
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('room-screen').classList.add('active');
+  document.getElementById('bottomnav').classList.add('gone');
   document.getElementById('room-title').textContent = currentRoom.name;
-  document.getElementById('room-id-badge').textContent = `ID: ${currentRoom.id}`;
+  document.getElementById('room-id-txt').textContent = currentRoom.id;
+  document.getElementById('rc-msgs').innerHTML = '';
+  document.getElementById('phase-banner').classList.remove('show');
+  document.getElementById('role-reveal').classList.remove('show');
+  rSys(`Xonaga xush kelibsiz! ID: ${currentRoom.id}`);
   renderPlayers();
-  document.getElementById('chat-messages').innerHTML = '';
-  addSystemMessage({ text: `Xonaga xush kelibsiz! ID: ${currentRoom.id}` });
-  
-  const isHost = currentRoom.hostId === currentUser.id;
-  document.getElementById('start-btn').style.display = isHost ? 'inline-flex' : 'none';
 }
-
+ 
+// ── ROOM SCREEN ────────────────────────────────────────────────────────────
 function renderPlayers() {
   if (!currentRoom) return;
-  const grid = document.getElementById('players-grid');
-  const isHost = currentRoom.hostId === currentUser.id;
-  const isVoting = currentRoom.phase === 'day_vote';
-  
-  grid.innerHTML = currentRoom.players.map(p => {
-    const isMe = p.id === currentUser.id;
-    const isSelectable = isVoting && !isMe && p.alive;
-    return `
-      <div class="player-card ${p.id === currentRoom.hostId ? 'host' : ''} ${!p.alive ? 'dead' : ''} ${isSelectable ? 'selectable' : ''}"
-           onclick="${isSelectable ? `castVote('${p.id}')` : ''}">
-        ${p.id === currentRoom.hostId ? '<div class="host-crown">👑</div>' : ''}
-        <div class="ready-indicator ${p.ready ? 'ready' : ''}"></div>
-        ${!p.alive ? '<div class="dead-icon">💀</div>' : ''}
-        <img class="player-avatar" src="${p.avatar || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${p.username}`}" alt="">
-        <div class="player-name">${escHtml(p.username)}</div>
-        <div class="player-badge"><span class="rank-badge rank-${p.rank}" style="font-size:0.65rem;padding:2px 8px">${getRankLabel(p.rank)}</span></div>
-        ${isMe ? '<div style="font-size:0.7rem;color:var(--accent);margin-top:4px">Siz</div>' : ''}
-      </div>
-    `;
-  }).join('');
-  
-  const isHostBtn = document.getElementById('start-btn');
-  if (isHostBtn) isHostBtn.style.display = isHost ? 'inline-flex' : 'none';
-}
-
-function toggleReady() { socket.emit('toggle_ready'); }
-function startGame() { socket.emit('start_game'); }
-function leaveRoom() { socket.emit('leave_room'); showScreen('lobby-screen'); currentRoom = null; loadRooms(); }
-
-// ===== GAME PHASES =====
-function showRole({ role, roleInfo, teammates }) {
-  const el = document.getElementById('role-card');
-  el.style.display = 'block';
-  document.getElementById('role-icon').textContent = roleInfo.icon;
-  document.getElementById('role-name').textContent = roleInfo.name;
-  document.getElementById('role-desc').textContent = roleInfo.description;
-  const tm = document.getElementById('role-teammates');
-  tm.textContent = teammates.length ? `🤝 Hamkorlar: ${teammates.join(', ')}` : '';
-}
-
-function handlePhaseChange({ phase, message, duration, alivePlayers }) {
-  const banner = document.getElementById('phase-banner');
-  banner.style.display = 'block';
-  document.getElementById('phase-text').textContent = message;
-  
-  clearInterval(timerInterval);
-  let timeLeft = duration || 0;
-  document.getElementById('phase-timer').textContent = timeLeft + 's';
-  if (timeLeft > 0) {
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      document.getElementById('phase-timer').textContent = timeLeft + 's';
-      if (timeLeft <= 0) clearInterval(timerInterval);
-    }, 1000);
-  }
-  
-  addSystemMessage({ text: message });
-  renderPlayers();
-}
-
-function castVote(targetId) {
-  socket.emit('vote', targetId);
-  showToast('Ovoz berildi!', 'success');
-  renderPlayers();
-}
-
-function renderVotes(votes) {
-  // Show vote indicators on player cards
-}
-
-function showNightAction({ role, targets }) {
-  const roleLabels = { MAFIA: 'Kim o\'ldirilsin?', DON: 'Kim o\'ldirilsin?', DETECTIVE: 'Kim tekshirilsin?', DOCTOR: 'Kim davolansin?' };
-  const label = roleLabels[role] || 'Harakat tanlang';
-  
-  const overlay = document.createElement('div');
-  overlay.id = 'night-action-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:400;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)';
-  overlay.innerHTML = `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;text-align:center;max-width:500px;width:90%">
-      <div style="font-size:2rem;margin-bottom:16px">🌙</div>
-      <h3 style="font-family:'Cinzel',serif;color:var(--accent);margin-bottom:8px">Kecha harakati</h3>
-      <p style="color:var(--muted);margin-bottom:24px">${label}</p>
-      <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center">
-        ${targets.map(t => `<button class="btn btn-outline" onclick="doNightAction('${t.id}')" style="min-width:120px">${escHtml(t.username)}</button>`).join('')}
-      </div>
-      <button class="btn btn-danger" style="width:100%;margin-top:16px" onclick="skipNightAction()">O'tkazib yuborish</button>
+  const isHost = currentRoom.hostId === me.id;
+  const isVote = currentRoom.phase === 'day_vote';
+  document.getElementById('start-btn').style.display = isHost && currentRoom.status==='waiting' ? 'inline-flex' : 'none';
+  document.getElementById('players-grid').innerHTML = currentRoom.players.map(p => `
+    <div class="pc ${p.id===currentRoom.hostId?'host':''} ${!p.alive?'dead':''} ${isVote&&p.id!==me.id&&p.alive?'selectable':''}">
+      ${p.id===currentRoom.hostId?'<div class="pc-crown">👑</div>':''}
+      <div class="pc-ready ${p.ready?'yes':''}"></div>
+      ${!p.alive?'<div class="pc-dead-icon">💀</div>':''}
+      <img class="av pc-av" src="${p.avatar}" onerror="this.src='https://api.dicebear.com/7.x/pixel-art/svg?seed=${p.username}'" alt="">
+      <div class="pc-name">${X(p.username)}</div>
+      <div class="pc-rb"><span class="rb rb-${p.rank}" style="font-size:.58rem">${RL(p.rank)}</span></div>
+      ${p.id===me.id?'<div class="pc-me">Siz</div>':''}
     </div>
-  `;
-  document.body.appendChild(overlay);
-}
-
-function doNightAction(targetId) {
-  socket.emit('night_action', targetId);
-  removeNightOverlay();
-}
-
-function skipNightAction() { removeNightOverlay(); }
-function removeNightOverlay() { document.getElementById('night-action-overlay')?.remove(); }
-
-function showNightResults(results) {
-  removeNightOverlay();
-  results.forEach(r => {
-    if (r.type === 'kill') addSystemMessage({ text: `💀 ${r.username} o'ldirildi! (${r.role?.name})`, type: 'warning' });
-    if (r.type === 'saved') addSystemMessage({ text: '💊 Doktor birini qutqardi!', type: 'info' });
-  });
-  if (results.length === 0) addSystemMessage({ text: '🌅 Hech kim o\'lmadi!', type: 'info' });
-  renderPlayers();
-}
-
-function showElimination({ username, role, voteCounts }) {
-  addSystemMessage({ text: `⚖️ ${username} chiqarildi! (${role?.name})`, type: 'warning' });
-  renderPlayers();
-}
-
-function showDetectiveResult({ username, isMafia }) {
-  showToast(`🔍 ${username}: ${isMafia ? '🔫 MAFIYA!' : '👤 Fuqaro'}`, isMafia ? 'error' : 'success');
-}
-
-function showGameOver({ winner, winnerTeam, players, winners }) {
-  const overlay = document.getElementById('gameover-overlay');
-  overlay.classList.add('show');
-  document.getElementById('gameover-emoji').textContent = winner === 'mafia' ? '🔫' : '👮';
-  document.getElementById('gameover-title').textContent = 'O\'yin Tugadi!';
-  document.getElementById('gameover-result').textContent = winnerTeam;
-  document.getElementById('gameover-winners').innerHTML = winners.map(w => `<span class="winner-chip">🏆 ${escHtml(w)}</span>`).join('');
-  document.getElementById('gameover-roles').innerHTML = players.map(p => `
-    <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:0.78rem">
-      ${p.role?.icon || '?'} ${escHtml(p.username)}<br><span style="color:var(--muted)">${p.role?.name}</span>
-    </span>
   `).join('');
 }
-
-function exitToLobby() {
-  document.getElementById('gameover-overlay').classList.remove('show');
-  leaveRoom();
+function toggleReady() {
+  const p = currentRoom.players.find(x => x.id === me.id);
+  if (p) { p.ready = !p.ready; renderPlayers(); }
 }
-
-// ===== CHAT =====
-function sendChat() {
-  const input = document.getElementById('chat-input');
-  if (!input.value.trim()) return;
-  socket.emit('chat_message', input.value.trim());
-  input.value = '';
+function startGame() {
+  currentRoom.status = 'playing';
+  toast('🎮 O\'yin boshlandi!', 'success');
+  // Demo: show roles
+  setTimeout(() => {
+    document.getElementById('role-reveal').classList.add('show');
+    document.getElementById('rr-icon').textContent = '💀';
+    document.getElementById('rr-name').textContent = 'Don';
+    document.getElementById('rr-desc').textContent = 'Mafiya boshlig\'i — kuchliroq!';
+    document.getElementById('rr-mates').textContent = '🤝 Hamkorlar: sardor_pro';
+    rSys('🎮 O\'yin boshlandi! Rollar taqsimlandi.');
+    // Demo: start day phase
+    setTimeout(() => startDemoPhase(), 2000);
+  }, 500);
 }
-
-function addChatMessage({ from, message, rank, timestamp }, isMafia = false) {
-  const el = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.className = `chat-msg ${isMafia ? 'mafia-msg' : ''}`;
-  div.innerHTML = `<span class="from" style="color:${getRankColor(rank)}">${getRankBadge(rank)} ${escHtml(from)}:</span> ${escHtml(message)}`;
-  el.appendChild(div);
-  el.scrollTop = el.scrollHeight;
+function startDemoPhase() {
+  currentRoom.phase = 'discussion';
+  document.getElementById('phase-banner').classList.add('show');
+  document.getElementById('phase-txt').textContent = '🌅 Kun 1 — Muhokama vaqti';
+  let t = 15;
+  document.getElementById('phase-timer').textContent = t+'s';
+  clearInterval(timerInt);
+  timerInt = setInterval(() => {
+    t--;
+    const el = document.getElementById('phase-timer');
+    if (el) el.textContent = t+'s';
+    if (t <= 0) { clearInterval(timerInt); startVotePhase(); }
+  }, 1000);
+  rSys('🌅 Kun 1 — Muhokama boshlandi! 15 soniya.');
 }
-
-function addSystemMessage({ text, type = 'info' }) {
-  const el = document.getElementById('chat-messages');
+function startVotePhase() {
+  currentRoom.phase = 'day_vote';
+  document.getElementById('phase-txt').textContent = '🗳️ Ovoz berish!';
+  let t = 10;
+  document.getElementById('phase-timer').textContent = t+'s';
+  clearInterval(timerInt);
+  timerInt = setInterval(() => {
+    t--;
+    const el = document.getElementById('phase-timer');
+    if (el) el.textContent = t+'s';
+    if (t <= 0) { clearInterval(timerInt); rSys('🌙 Kecha boshlandi...'); currentRoom.phase='night'; document.getElementById('phase-txt').textContent='🌙 Kecha'; }
+  }, 1000);
+  renderPlayers();
+  rSys('🗳️ Ovoz berish! Kim chiqarilsin?');
+}
+function leaveRoom() {
+  clearInterval(timerInt);
+  currentRoom = null;
+  document.getElementById('room-screen').classList.remove('active');
+  document.getElementById('bottomnav').classList.remove('gone');
+  goTab('lobby');
+}
+function addRChat(msg, isMafia=false) {
+  const el = document.getElementById('rc-msgs');
+  const d = document.createElement('div');
+  d.className = `rcm ${isMafia?'maf':''}`;
+  d.innerHTML = `<span class="fn" style="color:${RC(msg.rank)}">${RB(msg.rank)} ${X(msg.from)}</span>: ${X(msg.msg||msg.text||'')}`;
+  el.appendChild(d); el.scrollTop = el.scrollHeight;
+}
+function rSys(text) {
+  const el = document.getElementById('rc-msgs');
   if (!el) return;
-  const div = document.createElement('div');
-  div.className = 'chat-msg system';
-  div.style.color = type === 'warning' ? 'var(--red)' : type === 'error' ? 'var(--red)' : 'var(--accent)';
-  div.textContent = text;
-  el.appendChild(div);
-  el.scrollTop = el.scrollHeight;
+  const d = document.createElement('div'); d.className='rcm sys'; d.textContent=text;
+  el.appendChild(d); el.scrollTop = el.scrollHeight;
 }
-
-// ===== FRIENDS =====
-async function loadFriends() {
-  const res = await fetch(`${API}/api/friends`, { headers: { Authorization: `Bearer ${token}` } });
-  if (!res.ok) return;
-  const friends = await res.json();
-  const el = document.getElementById('friends-list');
-  if (!friends.length) { el.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;text-align:center">Do\'stlar yo\'q</div>'; return; }
-  el.innerHTML = friends.map(f => `
-    <div class="friend-item">
-      <img class="friend-avatar" src="https://api.dicebear.com/7.x/pixel-art/svg?seed=${f.username}" alt="">
-      <div>
-        <div class="friend-name">${escHtml(f.username)}</div>
-        <div class="friend-status">${getRankLabel(f.rank)}</div>
+function sendRChat() {
+  const el = document.getElementById('rc-in');
+  if (!el.value.trim()) return;
+  addRChat({ from: me.username, rank: me.rank, msg: el.value.trim() });
+  el.value='';
+}
+function exitGame() { document.getElementById('go-ovl').classList.remove('show'); leaveRoom(); }
+function skipNA() { document.getElementById('na-ovl').classList.remove('show'); }
+ 
+// ── FRIENDS ────────────────────────────────────────────────────────────────
+function frTab(tab) {
+  curFrTab = tab;
+  ['list','reqs','find'].forEach(t => {
+    document.getElementById(`fr-${t}`).style.display = t===tab?'block':'none';
+  });
+  document.querySelectorAll('.fr-tab').forEach((b,i)=>b.classList.toggle('active',['list','reqs','find'][i]===tab));
+  if (tab==='list') renderFriendsList();
+  if (tab==='reqs') renderFriendReqs();
+}
+function renderFriendsScreen() { frTab(curFrTab); }
+function renderFriendsList() {
+  const el = document.getElementById('fr-list');
+  const friends = DEMO.friends;
+  el.innerHTML = friends.length ? friends.map(f=>`
+    <div class="fr-item">
+      <img class="av fri-av" src="${f.avatar}" alt="">
+      <div class="fri-info">
+        <div class="fri-name">${X(f.username)}</div>
+        <div class="fri-sub">
+          <span class="rb rb-${f.rank}">${RL(f.rank)}</span>
+          ${f.online?'<span class="fri-online"></span><span style="color:var(--green)">Online</span>':''}
+          <span style="font-family:monospace">ID: ${f.id}</span>
+        </div>
       </div>
-      ${f.online ? '<div class="online-dot"></div>' : ''}
+      <div class="fri-btns">
+        <button class="btn btn-blue btn-xs" onclick="openChatWith('${f.id}','${X(f.username)}','${f.avatar}')">💬</button>
+        <button class="btn btn-red btn-xs" onclick="removeFrDemo('${f.id}')">✕</button>
+      </div>
+    </div>
+  `).join('') : '<div style="color:var(--muted);text-align:center;padding:40px;font-size:.85rem;font-weight:600">Do\'stlar yo\'q.<br>Qidirish orqali qo\'shing!</div>';
+}
+function renderFriendReqs() {
+  const el = document.getElementById('fr-reqs');
+  const reqs = DEMO.friendRequests;
+  const badge = document.getElementById('fr-req-badge');
+  if (reqs.length) { badge.style.display='block'; badge.textContent=reqs.length; }
+  else badge.style.display='none';
+  el.innerHTML = reqs.length ? reqs.map(r=>`
+    <div class="req-card">
+      <div class="req-top">
+        <img class="av req-av" src="${r.fromAvatar}" alt="">
+        <div>
+          <div class="req-name">${X(r.fromName)}</div>
+          <span class="rb rb-${r.fromRank}">${RL(r.fromRank)}</span>
+        </div>
+      </div>
+      <div class="req-msg">${X(r.fromName)} siz bilan do'st bo'lishni xohlaydi 👋</div>
+      <div class="req-btns">
+        <button class="btn btn-green" onclick="acceptFrDemo('${r.fromId}','${X(r.fromName)}','${r.fromAvatar}','${r.fromRank}')">✓ Qabul qilish</button>
+        <button class="btn btn-red" onclick="rejectFrDemo('${r.fromId}')">✕ Rad etish</button>
+      </div>
+    </div>
+  `).join('') : '<div style="color:var(--muted);text-align:center;padding:40px;font-size:.85rem;font-weight:600">So\'rovlar yo\'q</div>';
+}
+function acceptFrDemo(id, name, av, rank) {
+  DEMO.friendRequests = DEMO.friendRequests.filter(r=>r.fromId!==id);
+  DEMO.friends.push({ id, username:name, rank, online:false, gender:'male', avatar:av });
+  toast(`${name} do'stlar ro'yxatiga qo'shildi! ✅`, 'success');
+  renderFriendReqs(); renderFriendsList(); loadFriendsMini();
+  unreadFr = Math.max(0, unreadFr-1); updateFrBadge();
+}
+function rejectFrDemo(id) {
+  DEMO.friendRequests = DEMO.friendRequests.filter(r=>r.fromId!==id);
+  toast('So\'rov rad etildi', 'info');
+  renderFriendReqs();
+  unreadFr = Math.max(0, unreadFr-1); updateFrBadge();
+}
+function removeFrDemo(id) {
+  DEMO.friends = DEMO.friends.filter(f=>f.id!==id);
+  toast('Do\'stlikdan olib tashlandi', 'info');
+  renderFriendsList(); loadFriendsMini(); renderConvList();
+}
+function debSearch() {
+  clearTimeout(srchTimer);
+  srchTimer = setTimeout(searchDemo, 300);
+}
+function searchDemo() {
+  const q = document.getElementById('fr-q').value.trim().toLowerCase();
+  const el = document.getElementById('fr-results');
+  if (q.length < 2) { el.innerHTML=''; return; }
+  const sample = [
+    { id:'556677', username:'nodira_m', rank:'pro', gender:'female', avatar:'https://api.dicebear.com/7.x/avataaars/svg?seed=nodira' },
+    { id:'667788', username:'ulugbek_99', rank:'max', gender:'male', avatar:'https://api.dicebear.com/7.x/pixel-art/svg?seed=ulugbek' },
+  ].filter(u => u.username.includes(q) || u.id.includes(q));
+  el.innerHTML = sample.map(u=>`
+    <div class="search-card">
+      <img class="av" src="${u.avatar}" style="width:42px;height:42px" alt="">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.88rem;font-weight:800">${X(u.username)}</div>
+        <div style="font-size:.68rem;color:var(--muted);font-weight:600;margin-top:2px">
+          <span class="rb rb-${u.rank}">${RL(u.rank)}</span>
+          <span style="font-family:monospace;margin-left:4px">ID: ${u.id}</span>
+        </div>
+      </div>
+      <button class="btn btn-gold btn-xs" onclick="sendDemoFrReq('${u.id}','${X(u.username)}','${u.avatar}','${u.rank}',this)">+ Do'st</button>
+    </div>
+  `).join('') || `<div style="color:var(--muted);font-size:.8rem;text-align:center;margin-top:16px;font-weight:600">Topilmadi</div>`;
+}
+function sendDemoFrReq(id, name, av, rank, btn) {
+  btn.disabled=true; btn.textContent='✓ Yuborildi';
+  toast(`${name} ga do'stlik so'rovi yuborildi!`, 'success');
+}
+function loadFriendsMini() {
+  const el = document.getElementById('friends-mini-list');
+  if (!el) return;
+  el.innerHTML = DEMO.friends.slice(0,4).map(f=>`
+    <div class="fml-item">
+      <img class="av fml-av" src="${f.avatar}" style="width:32px;height:32px" alt="">
+      <div class="fml-name">${X(f.username)}</div>
+      ${f.online?'<div class="fml-online"></div>':''}
+    </div>
+  `).join('') || '<div style="color:var(--muted);font-size:.72rem;text-align:center;padding:6px">Do\'stlar yo\'q</div>';
+}
+function updateFrBadge() {
+  const b1 = document.getElementById('fr-bn-badge');
+  const b2 = document.getElementById('fr-req-badge');
+  if (unreadFr>0) { if(b1){b1.style.display='block';b1.textContent=unreadFr;} }
+  else { if(b1) b1.style.display='none'; }
+  if(b2&&unreadFr>0){b2.style.display='block';b2.textContent=unreadFr;}
+  else if(b2) b2.style.display='none';
+}
+ 
+// ── MESSAGES ───────────────────────────────────────────────────────────────
+function renderConvList() {
+  const friends = DEMO.friends;
+  const el = document.getElementById('conv-list');
+  const empty = document.getElementById('conv-empty');
+  if (!friends.length) { empty.style.display='flex'; el.innerHTML=''; return; }
+  empty.style.display='none';
+  el.innerHTML = friends.map(f=>{
+    const msgs = DEMO.messages[f.id]||[];
+    const last = msgs[msgs.length-1];
+    const unread = unreadMsgs[f.id]||0;
+    return `<div class="conv-item" onclick="openChatWith('${f.id}','${X(f.username)}','${f.avatar}')">
+      <img class="av conv-av" src="${f.avatar}" alt="">
+      <div class="conv-info">
+        <div class="conv-name">${X(f.username)} <span class="rb rb-${f.rank}" style="font-size:.58rem">${RL(f.rank)}</span></div>
+        <div class="conv-last">${last?X(last.text):'Xabar yo\'q'}</div>
+      </div>
+      <div class="conv-meta">
+        ${unread?`<div class="conv-unread">${unread}</div>`:''}
+        ${f.online?'<div class="conv-online"></div>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function openChatWith(id, name, av) {
+  chatUserId=id; chatUserName=name; chatUserAv=av;
+  delete unreadMsgs[id]; updateMsgBadge();
+  if (curTab!=='messages') goTab('messages');
+  document.getElementById('cv-av').src = av;
+  document.getElementById('cv-name').textContent = name;
+  const friend = DEMO.friends.find(f=>f.id===id);
+  document.getElementById('cv-status').textContent = friend?.online ? '🟢 Online' : '⚫ Offline';
+  const msgs = document.getElementById('cv-msgs');
+  msgs.innerHTML = '';
+  (DEMO.messages[id]||[]).forEach(m=>appendMsg(m, m.from===me.id));
+  msgs.scrollTop = msgs.scrollHeight;
+  document.getElementById('chat-view').classList.add('open');
+  renderConvList();
+}
+function closeChat() {
+  document.getElementById('chat-view').classList.remove('open');
+  chatUserId=null; renderConvList();
+}
+function appendMsg(msg, isMine) {
+  const el = document.getElementById('cv-msgs');
+  if (!el) return;
+  const first = el.querySelector('.empty-conv');
+  if (first) el.innerHTML='';
+  const d = document.createElement('div');
+  d.className=`msg-row ${isMine?'mine':'theirs'}`;
+  const av = isMine ? me.avatar : chatUserAv;
+  const t = new Date(msg.sentAt).toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'});
+  d.innerHTML = `<img class="av msg-sm-av" src="${av}" alt=""><div><div class="msg-bub">${X(msg.text)}</div><div class="msg-time">${t}</div></div>`;
+  el.appendChild(d); el.scrollTop=el.scrollHeight;
+}
+function sendMsg() {
+  const el=document.getElementById('cv-in');
+  const text=el.value.trim(); if(!text||!chatUserId) return;
+  el.value='';
+  const msg={id:Date.now()+'',from:me.id,fromName:me.username,text,sentAt:new Date().toISOString()};
+  if(!DEMO.messages[chatUserId]) DEMO.messages[chatUserId]=[];
+  DEMO.messages[chatUserId].push(msg);
+  appendMsg(msg,true);
+}
+function updateMsgBadge() {
+  const total=Object.values(unreadMsgs).reduce((a,b)=>a+b,0);
+  const b=document.getElementById('msg-bn-badge');
+  if(total>0){b.style.display='block';b.textContent=total;}
+  else b.style.display='none';
+}
+ 
+// ── LEADERBOARD ────────────────────────────────────────────────────────────
+function renderLeaderboard() {
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('lb-list').innerHTML = DEMO.leaderboard.map((u,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">
+      <span style="width:20px;text-align:center;font-size:.9rem">${medals[i]||i+1}</span>
+      <img class="av" src="${u.avatar}" style="width:30px;height:30px" alt="">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.8rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${X(u.username)}</div>
+        <span class="rb rb-${u.rank}" style="font-size:.58rem">${RL(u.rank)}</span>
+      </div>
+      <div style="font-size:.82rem;color:var(--gold);font-weight:800">${u.wins}🏆</div>
     </div>
   `).join('');
 }
-
-async function addFriend() {
-  const input = document.getElementById('friend-username-input');
-  const username = input.value.trim();
-  if (!username) return;
-  const res = await fetch(`${API}/api/friends/add`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ friendUsername: username })
-  });
-  const data = await res.json();
-  showToast(data.message || data.error, res.ok ? 'success' : 'error');
-  if (res.ok) { input.value = ''; loadFriends(); }
+ 
+// ── RANKS MODAL ────────────────────────────────────────────────────────────
+function openMod(id) {
+  if (id==='ranks-mod') renderRankModal();
+  document.getElementById(id).classList.add('open');
 }
-
-// ===== RANKS MODAL =====
-async function openRanksModal() {
-  const res = await fetch(`${API}/api/ranks`);
-  const ranks = await res.json();
-  const grid = document.getElementById('ranks-grid');
-  const rankOrder = ['vip', 'pro', 'max', 'ultimate'];
-  grid.innerHTML = rankOrder.map(key => {
-    const r = ranks[key];
-    return `
-      <div class="rank-card rank-${key}" onclick="buyRank('${key}')">
-        <span class="rank-icon">${key==='vip'?'⭐':key==='pro'?'💎':key==='max'?'🔥':'👑'}</span>
-        <div class="rank-name" style="color:${r.color}">${r.name}</div>
-        <div class="rank-price" style="color:${r.color}">${r.price.toLocaleString()} so'm/oy</div>
-        <ul class="rank-abilities">${r.abilities.map(a => `<li>${a}</li>`).join('')}</ul>
-        <button class="buy-btn" style="background:${r.color}20;color:${r.color};border:1px solid ${r.color}40">Sotib olish</button>
+function renderRankModal() {
+  if (me) { const el=document.getElementById('modal-my-id'); if(el) el.textContent=me.id; }
+  const icons={vip:'⭐',pro:'💎',max:'🔥',ultimate:'👑'};
+  document.getElementById('rank-modal-list').innerHTML = Object.entries(DEMO.ranks).map(([k,r])=>`
+    <div class="rank-modal-card" style="border-color:${r.color}22">
+      <div class="rmc-icon">${icons[k]}</div>
+      <div class="rmc-info">
+        <div class="rmc-name" style="color:${r.color}">${r.label}</div>
+        <div class="rmc-price" style="color:${r.color}">${r.price.toLocaleString()} so'm / oy</div>
+        <ul class="rmc-abilities">${r.abilities.map(a=>`<li>${a}</li>`).join('')}</ul>
+        <button class="btn btn-outline btn-xs" style="margin-top:10px;border-color:${r.color}44;color:${r.color}" onclick="rankInfo('${k}','${r.price}')">💳 To'lov qilish</button>
       </div>
-    `;
-  }).join('');
-  openModal('ranks-modal');
+    </div>
+  `).join('');
 }
-
-async function buyRank(rank) {
-  const rankNames = { vip: '⭐ VIP', pro: '💎 PRO', max: '🔥 MAX', ultimate: '👑 ULTIMATE' };
-  const prices = { vip: '5,000', pro: '15,000', max: '35,000', ultimate: '75,000' };
-  if (!confirm(`${rankNames[rank]} rankini ${prices[rank]} so'mga sotib olmoqchimisiz?\n\nDiqqat: Hozircha demo rejimda - admin faollashtiradi`)) return;
-  
-  const res = await fetch(`${API}/api/buy-rank`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ rank })
-  });
-  const data = await res.json();
-  if (res.ok) {
-    token = data.token;
-    localStorage.setItem('mafia_token', token);
-    currentUser = data.user;
-    updateUserPanel();
-    showToast(data.message, 'success');
-    closeModal('ranks-modal');
-  } else {
-    showToast(data.error, 'error');
-  }
+function rankInfo(rank, price) {
+  const names={vip:'⭐ VIP',pro:'💎 PRO',max:'🔥 MAX',ultimate:'👑 ULTIMATE'};
+  toast(`${names[rank]}: ${parseInt(price).toLocaleString()} so'm. ID: ${me?.id} ni adminga yuboring!`, 'info');
 }
-
-// ===== UTILS =====
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id)?.classList.add('active');
+function closeMod(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.ovl').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+ 
+// ── NOTIFICATIONS ──────────────────────────────────────────────────────────
+function addNotif(n) {
+  n._id=Date.now()+Math.random(); n.time=new Date(); n.read=false;
+  notifs.unshift(n); renderNotifPanel();
+  const cnt=notifs.filter(x=>!x.read).length;
+  const b=document.getElementById('n-count');
+  if(cnt>0){b.style.display='block';b.textContent=cnt;}
 }
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-function showToast(message, type = 'info') {
-  const container = document.getElementById('toast-container');
-  const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `<span>${icons[type]}</span><span>${escHtml(message)}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 4000);
+function renderNotifPanel() {
+  const el=document.getElementById('np-list');
+  if(!notifs.length){el.innerHTML='<div class="np-empty">Bildirishnoma yo\'q</div>';return;}
+  el.innerHTML=notifs.slice(0,20).map(n=>`
+    <div class="np-item ${!n.read?'unread':''}">
+      <div class="np-icon">${n.icon}</div>
+      <div class="np-body">
+        <div class="np-text">${X(n.text)}</div>
+        ${n.type==='fr'&&n.data?`<div class="np-fr-btns"><button class="btn btn-green btn-xs" onclick="acceptFrDemo('${n.data.fromId}','${X(n.data.fromName)}','${n.data.fromAvatar}','${n.data.fromRank}');removeNotif(${n._id})">✓ Qabul</button><button class="btn btn-red btn-xs" onclick="rejectFrDemo('${n.data.fromId}');removeNotif(${n._id})">✕ Rad</button></div>`:''}
+        <div class="np-time">${n.time.toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+    </div>
+  `).join('');
 }
-
-function getRankLabel(rank) {
-  const labels = { oddiy: '👤 Oddiy', vip: '⭐ VIP', pro: '💎 PRO', max: '🔥 MAX', ultimate: '👑 ULTIMATE' };
-  return labels[rank] || rank;
+function removeNotif(id) { notifs=notifs.filter(n=>n._id!==id); renderNotifPanel(); }
+function toggleNotif() {
+  const p=document.getElementById('np'); p.classList.toggle('open');
+  if(p.classList.contains('open')){notifs.forEach(n=>n.read=true);document.getElementById('n-count').style.display='none';}
 }
-function getRankBadge(rank) {
-  const badges = { oddiy: '', vip: '⭐', pro: '💎', max: '🔥', ultimate: '👑' };
-  return badges[rank] || '';
+function clearNotifs() { notifs=[]; renderNotifPanel(); }
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#np')&&!e.target.closest('.notif-btn')) document.getElementById('np').classList.remove('open');
+});
+ 
+// ── TOAST ──────────────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const c=document.getElementById('toasts');
+  const icons={success:'✅',error:'❌',info:'ℹ️'};
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${X(msg)}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';},3500);
+  setTimeout(()=>t.remove(),3900);
 }
-function getRankColor(rank) {
-  const colors = { oddiy: '#9ca3af', vip: '#f59e0b', pro: '#3b82f6', max: '#ef4444', ultimate: '#8b5cf6' };
-  return colors[rank] || '#9ca3af';
-}
-function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+ 
+// ── UTILS ──────────────────────────────────────────────────────────────────
+function X(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function RL(r){return{oddiy:'👤 Oddiy',vip:'⭐ VIP',pro:'💎 PRO',max:'🔥 MAX',ultimate:'👑 ULTIMATE'}[r]||r;}
+function RC(r){return{oddiy:'#8e8ea8',vip:'#f59e0b',pro:'#3b82f6',max:'#ef4444',ultimate:'#a855f7'}[r]||'#8e8ea8';}
+function RB(r){return{oddiy:'',vip:'⭐',pro:'💎',max:'🔥',ultimate:'👑'}[r]||'';}
+function setAvSrc(id,src){const el=document.getElementById(id);if(el)el.src=src||'https://api.dicebear.com/7.x/pixel-art/svg?seed=x';}
 </script>
 </body>
 </html>
